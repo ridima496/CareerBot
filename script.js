@@ -11,7 +11,7 @@ form.addEventListener("submit", async (e) => {
   input.value = "";
 
   try {
-    const response = await fetch("https://careerbot-backend-i1qt.onrender.com/chat", {
+    const response = await fetch("https://careerbot-backend-i1qt.onrender.com/get_response", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
