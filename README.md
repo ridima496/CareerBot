@@ -1,71 +1,40 @@
+# CareerBot
 
-# CareerBot AI 🎓🤖
+CareerBot is an AI-powered chatbot designed to assist students in career counseling, resume building, LinkedIn profile improvement, productivity enhancement, and skill mapping. Built with the Mistral 7B model using the `transformers.js` library, CareerBot runs entirely in the browser — no server or backend required.
 
-CareerBot is a friendly AI chatbot designed to help students with:
-- Career counselling
-- Resume building
-- LinkedIn profile enhancement
-- Productivity boosting
-- Skill mapping
+## 🌐 Live Demo
 
-It uses the **Mistral 7B** model running locally to provide intelligent, personalized guidance to students.
+🔗 [Try CareerBot Now](https://ridima496.github.io/CareerBot/)
 
----
+## 💡 Features
 
-## 🔧 Features
+- Career counseling based on user interests and strengths
+- Resume building guidance
+- LinkedIn profile improvement suggestions
+- Productivity tips
+- Skill mapping and development advice
+- Entirely browser-based using `transformers.js`
 
-- Chat with a local AI model (Mistral 7B)
-- Ask questions about careers, productivity, or self-improvement
-- Get suggestions tailored to your interests
+## 🚀 How It Works
 
----
+CareerBot uses the Mistral 7B language model via `transformers.js`, enabling AI inference directly in the browser using ONNX WebAssembly backend. No installation or server is required.
 
-## 🧠 Powered by
+## 🛠 Tech Stack
 
-- **Mistral 7B Instruct** (quantized using GGUF for efficiency)
-- **Text-generation-webui**
-- Streamlit interface (coming soon)
+- HTML, CSS, JavaScript
+- [Transformers.js](https://xenova.github.io/transformers.js/)
+- ONNX Runtime Web
+- GitHub Pages for deployment
 
----
+## 📱 Responsive Design
 
-## 🛠 Installation
-
-1. Clone this repository:
-```bash
-git clone https://github.com/<your-username>/careerbot.git
-cd careerbot
-```
-
-2. Create a virtual environment and activate it:
-```bash
-python -m venv venv
-source venv/bin/activate  # on Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Launch the chatbot:
-```bash
-python app.py
-```
-
----
-
-## 🌐 Hosting (Optional)
-
-To host this chatbot online so others can use it easily, consider using [Streamlit Cloud](https://streamlit.io/cloud) or [Hugging Face Spaces](https://huggingface.co/spaces).
-
----
+This chatbot is fully responsive and works on desktops, tablets, and mobile phones.
 
 ## 👩‍💻 Developer
 
 **Ridima Jaiswal**  
-School student | Passionate about AI, tech, productivity, and helping others grow 🚀
 
----
+A school student passionate about AI, technology, productivity, and innovation.
 
 ## 📄 License
 
