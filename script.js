@@ -16,7 +16,7 @@ form.addEventListener("submit", async (e) => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ message })
+      body: JSON.stringify({ message: userMessage })  // ✅ FIXED
     });
 
     const data = await response.json();
