@@ -4,16 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CareerBot</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>CareerBot</h1>
-    <div id="chat-box" class="chat-box"></div>
-    <form id="chat-form">
-      <input type="text" id="user-input" placeholder="Type your message..." required />
-      <button type="submit">Send</button>
-    </form>
+  <div class="App">
+    <div class="chat-area">
+      <div class="header">
+        <h2>CareerBot</h2>
+      </div>
+
+      <div id="chat-box" class="chat-window"></div>
+
+      <div id="typing" class="typing-indicator" style="display: none;">CareerBot is typing<span class="dots"></span></div>
+
+      <form id="chat-form" class="input-area">
+        <input type="text" id="user-input" placeholder="Ask me anything about careers..." autocomplete="off" />
+        <button type="submit">Send</button>
+      </form>
+    </div>
   </div>
 
   <script src="script.js"></script>
