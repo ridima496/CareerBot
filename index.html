@@ -2,28 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CareerBot</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="App">
-    <div class="chat-area">
-      <div class="header">
-        <h2>CareerBot</h2>
+  <div class="App" id="app">
+    <div class="layout">
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2>Chats</h2>
+          <button onclick="startNewSession()">+ New</button>
+        </div>
+        <div class="session-list" id="session-list"></div>
       </div>
 
-      <div id="chat-box" class="chat-window"></div>
+      <div class="chat-area" id="chat-area">
+        <div class="header">
+          <h1 id="chat-title">CareerBot</h1>
+          <div class="header-buttons">
+            <button onclick="toggleDarkMode()" id="darkModeToggle">🌙</button>
+            <button onclick="exportPDF()">🧾</button>
+            <button onclick="stopGeneration()" id="stopBtn" style="display: none;">⛔</button>
+          </div>
+        </div>
 
-      <div id="typing" class="typing-indicator" style="display: none;">CareerBot is typing<span class="dots"></span></div>
+        <div class="chat-window" id="chat-box"></div>
 
-      <form id="chat-form" class="input-area">
-        <input type="text" id="user-input" placeholder="Ask me anything about careers..." autocomplete="off" />
-        <button type="submit">Send</button>
-      </form>
+        <div class="toolbar">
+          <button onclick="triggerTool('resume')">📝 Resume Builder</button>
+          <button onclick="triggerTool('linkedin')">🔗 LinkedIn Enhancer</button>
+          <button onclick="triggerTool('skills')">🧠 Skill Mapper</button>
+          <button onclick="triggerTool('productivity')">⏱️ Productivity Booster</button>
+        </div>
+
+        <form class="input-area" id="chat-form">
+          <input id="user-input" type="text" placeholder="Type your message..." autocomplete="off" />
+          <button type="submit">Send</button>
+        </form>
+      </div>
     </div>
   </div>
 
+  <!-- External Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <!-- Main Script -->
   <script src="script.js"></script>
 </body>
 </html>
