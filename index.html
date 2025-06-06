@@ -272,7 +272,50 @@
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div class="App">
+    <div class="layout">
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2>Chats</h2>
+          <button onclick="location.reload()">+ New</button>
+        </div>
+        <div class="session-list">
+          <div class="session-title active">
+            <span class="title-text">Current Session</span>
+            <div class="hover-actions">
+              <span onclick="alert('Rename not implemented')">✏️</span>
+              <span onclick="alert('Delete not implemented')">🗑️</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-area">
+        <div class="header">
+          <h1>CareerBot</h1>
+          <div class="header-buttons">
+            <button id="dark-toggle">🌙</button>
+          </div>
+        </div>
+
+        <div class="chat-window" id="chat-box"></div>
+
+        <div class="toolbar">
+          <button>📝 Resume Builder</button>
+          <button>🔗 LinkedIn Enhancer</button>
+          <button>🧠 Skill Mapper</button>
+          <button>⏱️ Productivity Booster</button>
+        </div>
+
+        <form class="input-area" id="chat-form">
+          <input type="text" id="user-input" placeholder="Type your message..." />
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script -->
   <script src="script.js"></script>
 </body>
 </html>
