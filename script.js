@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById("sidebar");
   const newChatBtn = document.getElementById("new-chat");
   const chatList = document.getElementById("chat-list");
-  const chatTitle = document.getElementById("chat-title");
+
   const BACKEND_URL = "https://careerbot-backend-i1qt.onrender.com/get_response";
 
   let chats = JSON.parse(localStorage.getItem("careerbot_chats") || "[]");
@@ -81,7 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
         currentChat = chat;
         chatBox.innerHTML = "";
         chat.messages.forEach(m => appendMessage(m.sender, m.text, false, m.sender === "CareerBot"));
-        chatTitle.textContent = chat.title;
       };
 
       chatList.appendChild(div);
@@ -146,7 +145,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (currentChat.title === "Untitled Chat") {
           currentChat.title = getTitleFromMessage(userMessage);
-          chatTitle.textContent = currentChat.title;
         }
 
         saveChats();
@@ -191,7 +189,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function startNewChat() {
     currentChat = null;
     chatBox.innerHTML = "";
-    chatTitle.textContent = "New Chat";
   }
 
   renderChatList();
