@@ -4,39 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CareerBot</title>
-
   <style>
     body {
       margin: 0;
       font-family: "Segoe UI", sans-serif;
     }
 
-    .App {
-      display: flex;
-      height: 100vh;
-    }
-
-    .layout {
-      display: flex;
-      width: 100%;
-    }
+    .App { display: flex; height: 100vh; }
+    .layout { display: flex; width: 100%; }
 
     .sidebar {
       width: 240px;
-      background-color: #f0f0f0;
+      background-color: #f9fafb;
       padding: 10px;
       overflow-y: auto;
       border-right: 1px solid #ccc;
       transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-
-    .sidebar.hidden {
-      transform: translateX(-100%);
-    }
-
-    .dark-mode .sidebar {
-      background-color: #2e2e2e;
-      color: white;
+      transform: none;
     }
 
     .sidebar-header {
@@ -46,22 +30,16 @@
     }
 
     .session-title {
-      background: #e0f0e0;
+      background: #e4f0ff;
       padding: 8px;
       margin: 6px 0;
       cursor: pointer;
       border-radius: 4px;
-      transition: background-color 0.3s;
     }
 
     .session-title.active {
       font-weight: bold;
-      background: #cdeacc;
-    }
-
-    .dark-mode .session-title.active {
-      background-color: #225533;
-      color: white;
+      background: #cde6ff;
     }
 
     .chat-area {
@@ -72,14 +50,9 @@
       transition: background-color 0.3s ease;
     }
 
-    .dark-mode .chat-area {
-      background-color: #1e1e1e;
-      color: white;
-    }
-
     .header {
       padding: 12px 16px;
-      background: linear-gradient(to right, #007bff, #4b6cb7);
+      background: linear-gradient(to right, #2563eb, #4f46e5);
       color: white;
       font-weight: bold;
       display: flex;
@@ -111,26 +84,18 @@
     }
 
     .message.user {
-      background-color: #4a90e2;
+      background-color: #2563eb;
       color: white;
       margin-left: auto;
       text-align: right;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     .message.bot {
-      background-color: #3cba54;
-      color: white;
+      background-color: #34d399;
+      color: #1f2937;
       margin-right: auto;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    }
-
-    .dark-mode .message.user {
-      background-color: #2963a3;
-    }
-
-    .dark-mode .message.bot {
-      background-color: #2f4f2f;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     .message {
@@ -138,8 +103,6 @@
       border-radius: 10px;
       max-width: 80%;
       white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
     }
 
     .avatar {
@@ -147,7 +110,7 @@
       height: 32px;
       margin-right: 8px;
       border-radius: 50%;
-      border: 2px solid #4caf50;
+      border: 2px solid #10b981;
     }
 
     .input-area {
@@ -155,7 +118,6 @@
       padding: 12px;
       background-color: #f8f8f8;
       border-top: 1px solid #ddd;
-      transition: background-color 0.3s ease;
     }
 
     .input-area input {
@@ -167,37 +129,21 @@
       border: 1px solid #aaa;
     }
 
-    .input-area input:focus {
-      outline: none;
-      border-color: #007bff;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    }
-
     .input-area button {
       padding: 10px 16px;
       font-size: 16px;
       border-radius: 5px;
       border: none;
-      background: #007bff;
+      background: #2563eb;
       color: white;
       cursor: pointer;
-    }
-
-    .dark-mode .input-area {
-      background-color: #333;
-    }
-
-    .dark-mode input {
-      background: #555;
-      color: white;
-      border: 1px solid #aaa;
     }
 
     .toolbar {
       display: flex;
       gap: 8px;
       padding: 10px;
-      background-color: #f5f5f5;
+      background-color: #f1f5f9;
       border-bottom: 1px solid #ddd;
       flex-wrap: wrap;
     }
@@ -206,19 +152,10 @@
       padding: 8px 12px;
       border: none;
       border-radius: 4px;
-      background-color: #4285f4;
+      background-color: #4f46e5;
       color: white;
       font-size: 14px;
       cursor: pointer;
-    }
-
-    .dark-mode .toolbar {
-      background-color: #333;
-      border-bottom-color: #555;
-    }
-
-    .dark-mode .toolbar button {
-      background-color: #5a95f5;
     }
 
     .typing-indicator {
@@ -226,6 +163,45 @@
       font-size: 14px;
       color: gray;
       animation: blink 1.2s infinite;
+    }
+
+    /* Dark Mode */
+    .dark-mode .sidebar,
+    .dark-mode .toolbar {
+      background-color: #1f2937;
+      color: white;
+    }
+
+    .dark-mode .session-title.active {
+      background-color: #334155;
+    }
+
+    .dark-mode .chat-area {
+      background-color: #111827;
+      color: white;
+    }
+
+    .dark-mode .input-area {
+      background-color: #1f2937;
+    }
+
+    .dark-mode input {
+      background: #374151;
+      color: white;
+      border: 1px solid #555;
+    }
+
+    .dark-mode .message.user {
+      background-color: #3b82f6;
+    }
+
+    .dark-mode .message.bot {
+      background-color: #10b981;
+      color: white;
+    }
+
+    .dark-mode .toolbar button {
+      background-color: #6366f1;
     }
 
     @keyframes fadeIn {
@@ -245,7 +221,11 @@
         height: 100%;
         left: 0;
         top: 0;
-        background-color: #f0f0f0;
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
       }
 
       .menu-toggle {
@@ -257,8 +237,7 @@
 <body>
   <div class="App">
     <div class="layout">
-      <!-- Sidebar -->
-      <div class="sidebar hidden" id="sidebar">
+      <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
           <h2>CareerBot</h2>
           <button id="dark-toggle">🌙</button>
@@ -266,7 +245,6 @@
         <div class="session-title active">Chat Session</div>
       </div>
 
-      <!-- Main Chat Area -->
       <div class="chat-area">
         <div class="header">
           <button id="menu-toggle" class="menu-toggle">☰</button>
