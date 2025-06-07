@@ -196,6 +196,18 @@
       0%, 80%, 100% { opacity: 0; }
       40% { opacity: 1; }
     }
+    #export-pdf {
+      margin-left: auto;
+      background-color: #10b981;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .dark-mode #export-pdf {
+      background-color: #059669;
+    }
   </style>
 </head>
 <body>
@@ -215,6 +227,7 @@
         <div class="header">
           <button id="menu-toggle" class="menu-toggle">☰</button>
           <h3 id="chat-title">CareerBot – Your friendly neighborhood career counsellor!</h3>
+          <button id="export-pdf" title="Download PDF">📄 Export</button>
         </div>
         <div class="toolbar">
           <button>Resume Builder</button>
@@ -231,5 +244,6 @@
     </div>
   </div>
   <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
