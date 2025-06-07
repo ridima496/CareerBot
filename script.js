@@ -8,20 +8,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function appendMessage(sender, message) {
     const container = document.createElement("div");
-    container.className = `flex ${sender === "You" ? "justify-end" : "justify-start"} mb-4`;
+    container.className = "message-container";
 
     const bubble = document.createElement("div");
-    bubble.className = `max-w-[80%] px-4 py-2 rounded-lg text-sm whitespace-pre-wrap ${
-      sender === "You"
-        ? "bg-blue-500 text-white"
-        : "bg-green-100 dark:bg-green-800 dark:text-white"
-    }`;
+    bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
     bubble.textContent = message;
 
     if (sender !== "You") {
       const avatar = document.createElement("img");
       avatar.src = "logo512.png";
-      avatar.className = "w-8 h-8 mr-2";
+      avatar.className = "avatar";
       container.appendChild(avatar);
     }
 
@@ -41,9 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ message: userMessage })
       });
 
-      if (!response.ok) {
-        throw new Error("Server error");
-      }
+      if (!response.ok) throw new Error("Server error");
 
       const data = await response.json();
       appendMessage("CareerBot", data.response);
@@ -60,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (darkToggle) {
     darkToggle.addEventListener("click", () => {
-      document.documentElement.classList.toggle("dark");
+      document.body.classList.toggle("dark-mode");
     });
   }
 });
