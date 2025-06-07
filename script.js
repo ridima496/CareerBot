@@ -10,11 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatTitle = document.getElementById("chat-title");
 
   const BACKEND_URL = "https://careerbot-backend-i1qt.onrender.com/get_response";
+  const TITLE_URL = "https://careerbot-backend-i1qt.onrender.com/generate_title";
 
   let chats = JSON.parse(localStorage.getItem("careerbot_chats") || "[]");
   let currentChat = null;
 
-  // Utils
   function saveChats() {
     const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
     chats = chats.filter(c => c.timestamp > cutoff);
@@ -22,79 +22,79 @@ document.addEventListener("DOMContentLoaded", () => {
     renderChatList();
   }
 
-  function createChat(title) {
+  function createChat(title = "Untitled Chat") {
     const id = Date.now().toString();
     return { id, title, messages: [], timestamp: Date.now() };
   }
 
-  function summarize(text) {
-    return text.split(" ").slice(0, 5).join(" ") + (text.split(" ").length > 5 ? "..." : "");
-  }
-
   function renderChatList() {
     chatList.innerHTML = "";
-    chats
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .forEach(chat => {
-        const div = document.createElement("div");
-        div.className = "chat-item";
-        div.dataset.id = chat.id;
+    chats.sort((a, b) => b.timestamp - a.timestamp).forEach(chat => {
+      const div = document.createElement("div");
+      div.className = "chat-item";
+      div.dataset.id = chat.id;
 
-        const title = document.createElement("div");
-        title.className = "chat-title-text";
-        title.textContent = chat.title;
+      const title = document.createElement("div");
+      title.className = "chat-title-text";
+      title.textContent = chat.title;
 
-        const actions = document.createElement("div");
-        actions.className = "chat-actions";
+      const actions = document.createElement("div");
+      actions.className = "chat-actions";
 
-        const renameBtn = document.createElement("button");
-        renameBtn.textContent = "📝";
-        renameBtn.title = "Rename";
-        renameBtn.onclick = (e) => {
-          e.stopPropagation();
-          const newTitle = prompt("Rename chat:", chat.title);
-          if (newTitle) {
-            chat.title = newTitle;
-            saveChats();
-          }
-        };
+      const renameBtn = document.createElement("button");
+      renameBtn.textContent = "📝";
+      renameBtn.title = "Rename";
+      renameBtn.onclick = (e) => {
+        e.stopPropagation();
+        const newTitle = prompt("Rename chat:", chat.title);
+        if (newTitle) {
+          chat.title = newTitle;
+          saveChats();
+        }
+      };
 
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "🗑️";
-        deleteBtn.title = "Delete";
-        deleteBtn.onclick = (e) => {
-          e.stopPropagation();
-          if (confirm("Delete this chat?")) {
-            chats = chats.filter(c => c.id !== chat.id);
-            saveChats();
-            if (currentChat?.id === chat.id) startNewChat();
-          }
-        };
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "🗑️";
+      deleteBtn.title = "Delete";
+      deleteBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (confirm("Delete this chat?")) {
+          chats = chats.filter(c => c.id !== chat.id);
+          saveChats();
+          if (currentChat?.id === chat.id) startNewChat();
+        }
+      };
 
-        actions.appendChild(renameBtn);
-        actions.appendChild(deleteBtn);
+      actions.appendChild(renameBtn);
+      actions.appendChild(deleteBtn);
+      div.appendChild(title);
+      div.appendChild(actions);
 
-        div.appendChild(title);
-        div.appendChild(actions);
+      div.onclick = () => {
+        currentChat = chat;
+        chatBox.innerHTML = "";
+        chat.messages.forEach(m => appendMessage(m.sender, m.text));
+        chatTitle.textContent = chat.title;
+      };
 
-        div.onclick = () => {
-          currentChat = chat;
-          chatBox.innerHTML = "";
-          chat.messages.forEach(m => appendMessage(m.sender, m.text));
-          chatTitle.textContent = chat.title;
-        };
-
-        chatList.appendChild(div);
-      });
+      chatList.appendChild(div);
+    });
   }
 
-  function appendMessage(sender, message, isTyping = false) {
+  function appendMessage(sender, message, isTyping = false, showAvatar = false) {
     const container = document.createElement("div");
     container.className = "message-container";
 
     const bubble = document.createElement("div");
     bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
     bubble.textContent = isTyping ? "CareerBot is typing..." : message;
+
+    if (sender === "CareerBot" && showAvatar) {
+      const avatar = document.createElement("img");
+      avatar.src = "logo512.png";
+      avatar.className = "avatar";
+      container.appendChild(avatar);
+    }
 
     container.appendChild(bubble);
     chatBox.appendChild(container);
@@ -104,38 +104,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function sendMessage(userMessage) {
     if (!currentChat) {
-      currentChat = createChat("Untitled Chat");
+      currentChat = createChat();
       chats.unshift(currentChat);
     }
 
     appendMessage("You", userMessage);
     currentChat.messages.push({ sender: "You", text: userMessage });
 
-    if (currentChat.title === "Untitled Chat") {
-      currentChat.title = summarize(userMessage);
-      chatTitle.textContent = currentChat.title;
-    }
+    const typingBubble = appendMessage("CareerBot", "", true, true);
 
-    const typingBubble = appendMessage("CareerBot", "", true);
+    // Prepare last 5 user+bot pairs
+    const recentHistory = currentChat.messages
+      .slice(-10)
+      .filter((_, i, arr) => i % 2 === 0 && arr[i + 1])
+      .map((m, i, arr) => ({
+        user: m.text,
+        bot: arr[i + 1]?.text || ""
+      }));
 
     try {
       const response = await fetch(BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage })
+        body: JSON.stringify({ message: userMessage, history: recentHistory })
       });
 
       const data = await response.json();
+
       setTimeout(() => {
         typingBubble.remove();
-        appendMessage("CareerBot", data.response);
+        appendMessage("CareerBot", data.response, false, true);
         currentChat.messages.push({ sender: "CareerBot", text: data.response });
         currentChat.timestamp = Date.now();
         saveChats();
-      }, 1200);
+      }, 1000);
+
+      // AI Title Generation (only if it's the first message)
+      if (currentChat.title === "Untitled Chat") {
+        const titleResp = await fetch(TITLE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMessage })
+        });
+        const t = await titleResp.json();
+        currentChat.title = t.title || "New Chat";
+        chatTitle.textContent = currentChat.title;
+        saveChats();
+      }
+
     } catch (error) {
       typingBubble.remove();
-      appendMessage("CareerBot", "⚠️ Couldn’t reach the server.");
+      appendMessage("CareerBot", "⚠️ Sorry, I couldn't reach the server.");
     }
   }
 
