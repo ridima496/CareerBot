@@ -27,7 +27,11 @@
       padding: 10px;
       overflow-y: auto;
       border-right: 1px solid #ccc;
-      transition: background-color 0.3s ease;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    .sidebar.hidden {
+      transform: translateX(-100%);
     }
 
     .dark-mode .sidebar {
@@ -78,7 +82,18 @@
       background: linear-gradient(to right, #007bff, #4b6cb7);
       color: white;
       font-weight: bold;
-      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      color: white;
+      cursor: pointer;
     }
 
     .chat-window {
@@ -150,7 +165,6 @@
       margin-right: 10px;
       border-radius: 5px;
       border: 1px solid #aaa;
-      transition: box-shadow 0.3s ease;
     }
 
     .input-area input:focus {
@@ -167,11 +181,6 @@
       background: #007bff;
       color: white;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .input-area button:hover {
-      background: #0056b3;
     }
 
     .dark-mode .input-area {
@@ -201,11 +210,6 @@
       color: white;
       font-size: 14px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .toolbar button:hover {
-      background-color: #3367d6;
     }
 
     .dark-mode .toolbar {
@@ -217,36 +221,36 @@
       background-color: #5a95f5;
     }
 
-    .dark-mode .toolbar button:hover {
-      background-color: #4a85e5;
-    }
-
-    @media (max-width: 768px) {
-      .App, .layout {
-        flex-direction: column;
-      }
-
-      .sidebar {
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid #ccc;
-      }
-
-      .toolbar {
-        justify-content: space-between;
-        gap: 4px;
-      }
-
-      .toolbar button {
-        flex: 1 1 48%;
-        font-size: 12px;
-      }
+    .typing-indicator {
+      font-style: italic;
+      font-size: 14px;
+      color: gray;
+      animation: blink 1.2s infinite;
     }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: absolute;
+        z-index: 999;
+        height: 100%;
+        left: 0;
+        top: 0;
+        background-color: #f0f0f0;
+      }
+
+      .menu-toggle {
+        display: inline;
+      }
     }
   </style>
 </head>
@@ -254,7 +258,7 @@
   <div class="App">
     <div class="layout">
       <!-- Sidebar -->
-      <div class="sidebar">
+      <div class="sidebar hidden" id="sidebar">
         <div class="sidebar-header">
           <h2>CareerBot</h2>
           <button id="dark-toggle">🌙</button>
@@ -265,6 +269,7 @@
       <!-- Main Chat Area -->
       <div class="chat-area">
         <div class="header">
+          <button id="menu-toggle" class="menu-toggle">☰</button>
           <h3>Chat with CareerBot</h3>
         </div>
 
@@ -275,9 +280,7 @@
           <button>🎯 Career Path</button>
         </div>
 
-        <div class="chat-window" id="chat-box">
-          <!-- Messages appear here -->
-        </div>
+        <div class="chat-window" id="chat-box"></div>
 
         <form id="chat-form" class="input-area">
           <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
