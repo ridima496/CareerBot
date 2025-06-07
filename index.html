@@ -64,12 +64,14 @@
       background-color: #f9fafb;
     }
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 16px;
-      background: linear-gradient(to right, #3b82f6, #6366f1);
-      color: white;
+      background: linear-gradient(135deg, #6366f1, #ec4899, #facc15, #3b82f6);
+      background-size: 600% 600%;
+      animation: gradientShift 12s ease infinite;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     .menu-toggle {
       display: none;
@@ -182,6 +184,19 @@
     .dark-mode .input-area button {
       background-color: #4b5563;
       color: white;
+    }
+    .typing-indicator .dots span {
+      animation: blink 1s infinite;
+    }
+    .typing-indicator .dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing-indicator .dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0; }
+      40% { opacity: 1; }
     }
   </style>
 </head>
