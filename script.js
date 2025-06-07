@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (sender !== "You") {
       const avatar = document.createElement("img");
-      avatar.src = "https://raw.githubusercontent.com/ridima496/CareerBot/main/logo512.png";
+      avatar.src = "logo512.png";
       avatar.className = "w-8 h-8 mr-2";
       container.appendChild(avatar);
     }
