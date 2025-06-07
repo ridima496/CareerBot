@@ -3,32 +3,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("user-input");
   const chatBox = document.getElementById("chat-box");
   const darkToggle = document.getElementById("dark-toggle");
+  const menuToggle = document.getElementById("menu-toggle");
+  const sidebar = document.getElementById("sidebar");
 
   const BACKEND_URL = "https://careerbot-backend-i1qt.onrender.com/get_response";
 
-  function appendMessage(sender, message) {
+  function appendMessage(sender, message, isTyping = false) {
     const container = document.createElement("div");
     container.className = "message-container";
 
     const bubble = document.createElement("div");
     bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
-    bubble.textContent = message;
+    bubble.textContent = isTyping ? "CareerBot is typing..." : message;
 
-    if (sender !== "You") {
+    if (sender === "CareerBot" && !isTyping) {
       const avatar = document.createElement("img");
       avatar.src = "logo512.png";
       avatar.className = "avatar";
       container.appendChild(avatar);
     }
 
+    bubble.classList.toggle("typing-indicator", isTyping);
     container.appendChild(bubble);
     chatBox.appendChild(container);
     chatBox.scrollTop = chatBox.scrollHeight;
+
+    return bubble;
   }
 
   async function sendMessage(userMessage) {
     appendMessage("You", userMessage);
     input.value = "";
+
+    const typingBubble = appendMessage("CareerBot", "", true);
 
     try {
       const response = await fetch(BACKEND_URL, {
@@ -37,11 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ message: userMessage })
       });
 
-      if (!response.ok) throw new Error("Server error");
-
       const data = await response.json();
-      appendMessage("CareerBot", data.response);
+
+      setTimeout(() => {
+        typingBubble.remove();
+        appendMessage("CareerBot", data.response);
+      }, 1200);
     } catch (error) {
+      typingBubble.remove();
       appendMessage("CareerBot", "⚠️ Sorry, I couldn't reach the server.");
     }
   }
@@ -52,9 +62,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (userMessage) sendMessage(userMessage);
   });
 
-  if (darkToggle) {
-    darkToggle.addEventListener("click", () => {
-      document.body.classList.toggle("dark-mode");
-    });
-  }
+  darkToggle?.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+  });
+
+  menuToggle?.addEventListener("click", () => {
+    sidebar.classList.toggle("hidden");
+  });
 });
