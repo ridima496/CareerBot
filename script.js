@@ -8,16 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const newChatBtn = document.getElementById("new-chat");
   const chatList = document.getElementById("chat-list");
   const chatTitle = document.getElementById("chat-title");
-
   const BACKEND_URL = "https://careerbot-backend-i1qt.onrender.com/get_response";
-  const TITLE_URL = "https://careerbot-backend-i1qt.onrender.com/generate_title";
 
   let chats = JSON.parse(localStorage.getItem("careerbot_chats") || "[]");
   let currentChat = null;
+  let isBotTyping = false;
 
   function saveChats() {
-    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    chats = chats.filter(c => c.timestamp > cutoff);
     localStorage.setItem("careerbot_chats", JSON.stringify(chats));
     renderChatList();
   }
@@ -25,6 +22,16 @@ document.addEventListener("DOMContentLoaded", () => {
   function createChat(title = "Untitled Chat") {
     const id = Date.now().toString();
     return { id, title, messages: [], timestamp: Date.now() };
+  }
+
+  function getTitleFromMessage(msg) {
+    const txt = msg.toLowerCase();
+    if (["hi", "hello", "hey"].includes(txt)) return "Introduction and Greetings";
+    if (txt.includes("resume")) return "Resume Assistance";
+    if (txt.includes("linkedin")) return "LinkedIn Profile Help";
+    if (txt.includes("career") || txt.includes("future")) return "Career Guidance";
+    if (txt.includes("skills") || txt.includes("map")) return "Skill Mapping";
+    return "Conversation";
   }
 
   function renderChatList() {
@@ -73,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       div.onclick = () => {
         currentChat = chat;
         chatBox.innerHTML = "";
-        chat.messages.forEach(m => appendMessage(m.sender, m.text));
+        chat.messages.forEach(m => appendMessage(m.sender, m.text, false, m.sender === "CareerBot"));
         chatTitle.textContent = chat.title;
       };
 
@@ -87,7 +94,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const bubble = document.createElement("div");
     bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
-    bubble.textContent = isTyping ? "CareerBot is typing..." : message;
+
+    if (isTyping) {
+      bubble.innerHTML = `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
+    } else {
+      bubble.textContent = message;
+    }
 
     if (sender === "CareerBot" && showAvatar) {
       const avatar = document.createElement("img");
@@ -103,6 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function sendMessage(userMessage) {
+    if (isBotTyping) return;
+
     if (!currentChat) {
       currentChat = createChat();
       chats.unshift(currentChat);
@@ -112,21 +126,14 @@ document.addEventListener("DOMContentLoaded", () => {
     currentChat.messages.push({ sender: "You", text: userMessage });
 
     const typingBubble = appendMessage("CareerBot", "", true, true);
-
-    // Prepare last 5 user+bot pairs
-    const recentHistory = currentChat.messages
-      .slice(-10)
-      .filter((_, i, arr) => i % 2 === 0 && arr[i + 1])
-      .map((m, i, arr) => ({
-        user: m.text,
-        bot: arr[i + 1]?.text || ""
-      }));
+    isBotTyping = true;
+    input.disabled = true;
 
     try {
       const response = await fetch(BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage, history: recentHistory })
+        body: JSON.stringify({ message: userMessage })
       });
 
       const data = await response.json();
@@ -136,25 +143,22 @@ document.addEventListener("DOMContentLoaded", () => {
         appendMessage("CareerBot", data.response, false, true);
         currentChat.messages.push({ sender: "CareerBot", text: data.response });
         currentChat.timestamp = Date.now();
+
+        if (currentChat.title === "Untitled Chat") {
+          currentChat.title = getTitleFromMessage(userMessage);
+          chatTitle.textContent = currentChat.title;
+        }
+
         saveChats();
+        isBotTyping = false;
+        input.disabled = false;
+        input.focus();
       }, 1000);
-
-      // AI Title Generation (only if it's the first message)
-      if (currentChat.title === "Untitled Chat") {
-        const titleResp = await fetch(TITLE_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userMessage })
-        });
-        const t = await titleResp.json();
-        currentChat.title = t.title || "New Chat";
-        chatTitle.textContent = currentChat.title;
-        saveChats();
-      }
-
     } catch (error) {
       typingBubble.remove();
       appendMessage("CareerBot", "⚠️ Sorry, I couldn't reach the server.");
+      isBotTyping = false;
+      input.disabled = false;
     }
   }
 
@@ -190,6 +194,5 @@ document.addEventListener("DOMContentLoaded", () => {
     chatTitle.textContent = "New Chat";
   }
 
-  // INIT
   renderChatList();
 });
