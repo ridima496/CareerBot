@@ -193,3 +193,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderChatList();
 });
+
+document.getElementById("export-pdf").addEventListener("click", () => {
+  if (!currentChat || currentChat.messages.length === 0) {
+    alert("No chat to export.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 10;
+  doc.setFont("helvetica");
+  doc.setFontSize(12);
+
+  doc.text("CareerBot – Conversation Export", 10, y);
+  y += 10;
+
+  currentChat.messages.forEach(msg => {
+    const sender = msg.sender === "You" ? "You" : "CareerBot";
+    const lines = doc.splitTextToSize(`${sender}: ${msg.text}`, 180);
+    lines.forEach(line => {
+      if (y > 280) {
+        doc.addPage();
+        y = 10;
+      }
+      doc.text(line, 10, y);
+      y += 7;
+    });
+    y += 5;
+  });
+
+  const filename = (currentChat.title || "CareerBot_Chat").replace(/\s+/g, "_") + ".pdf";
+  doc.save(filename);
+});
