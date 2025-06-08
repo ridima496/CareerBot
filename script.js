@@ -7,12 +7,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById("sidebar");
   const newChatBtn = document.getElementById("new-chat");
   const chatList = document.getElementById("chat-list");
+  const promptText = document.getElementById("prompt-text");
+  const featureToolbar = document.getElementById("feature-toolbar");
+  const exportBtn = document.getElementById("export-pdf");
 
   const BACKEND_URL = "https://careerbot-backend-i1qt.onrender.com/get_response";
 
   let chats = JSON.parse(localStorage.getItem("careerbot_chats") || "[]");
   let currentChat = null;
   let isBotTyping = false;
+  let hasUserMessaged = false;
 
   function saveChats() {
     localStorage.setItem("careerbot_chats", JSON.stringify(chats));
@@ -80,9 +84,10 @@ document.addEventListener("DOMContentLoaded", () => {
       div.onclick = () => {
         currentChat = chat;
         chatBox.innerHTML = "";
-        chat.messages.forEach(m =>
-          appendMessage(m.sender, m.text, false, m.sender === "CareerBot")
-        );
+        chat.messages.forEach(m => appendMessage(m.sender, m.text, false, m.sender === "CareerBot"));
+        promptText.classList.remove("show");
+        featureToolbar.classList.remove("show");
+        hasUserMessaged = true;
       };
 
       chatList.appendChild(div);
@@ -124,6 +129,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentChat) {
       currentChat = createChat();
       chats.unshift(currentChat);
+    }
+
+    if (!hasUserMessaged) {
+      promptText.classList.remove("show");
+      featureToolbar.classList.remove("show");
+      hasUserMessaged = true;
     }
 
     appendMessage("You", userMessage);
@@ -185,10 +196,11 @@ document.addEventListener("DOMContentLoaded", () => {
   newChatBtn?.addEventListener("click", () => {
     if (currentChat?.messages?.length) {
       saveChats();
-      startNewChat();
-    } else {
-      startNewChat();
     }
+    startNewChat();
+    promptText.classList.add("show");
+    featureToolbar.classList.add("show");
+    hasUserMessaged = false;
   });
 
   function startNewChat() {
@@ -197,38 +209,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   renderChatList();
-});
 
-document.getElementById("export-pdf").addEventListener("click", () => {
-  if (!currentChat || currentChat.messages.length === 0) {
-    alert("No chat to export.");
-    return;
-  }
+  exportBtn.addEventListener("click", () => {
+    if (!currentChat || currentChat.messages.length === 0) {
+      alert("No chat to export.");
+      return;
+    }
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-  let y = 10;
-  doc.setFont("helvetica");
-  doc.setFontSize(12);
+    let y = 10;
+    doc.setFont("helvetica");
+    doc.setFontSize(12);
+    doc.text("CareerBot – Conversation Export", 10, y);
+    y += 10;
 
-  doc.text("CareerBot – Conversation Export", 10, y);
-  y += 10;
-
-  currentChat.messages.forEach(msg => {
-    const sender = msg.sender === "You" ? "You" : "CareerBot";
-    const lines = doc.splitTextToSize(`${sender}: ${msg.text}`, 180);
-    lines.forEach(line => {
-      if (y > 280) {
-        doc.addPage();
-        y = 10;
-      }
-      doc.text(line, 10, y);
-      y += 7;
+    currentChat.messages.forEach(msg => {
+      const sender = msg.sender === "You" ? "You" : "CareerBot";
+      const lines = doc.splitTextToSize(`${sender}: ${msg.text}`, 180);
+      lines.forEach(line => {
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
+        doc.text(line, 10, y);
+        y += 7;
+      });
+      y += 5;
     });
-    y += 5;
-  });
 
-  const filename = (currentChat.title || "CareerBot_Chat").replace(/\s+/g, "_") + ".pdf";
-  doc.save(filename);
+    const filename = (currentChat.title || "CareerBot_Chat").replace(/\s+/g, "_") + ".pdf";
+    doc.save(filename);
+  });
 });
