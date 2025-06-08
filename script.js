@@ -42,6 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
     chats.sort((a, b) => b.timestamp - a.timestamp).forEach(chat => {
       const div = document.createElement("div");
       div.className = "chat-item";
+      if (currentChat?.id === chat.id) {
+        div.classList.add("active");
+      }
       div.dataset.id = chat.id;
 
       const title = document.createElement("div");
