@@ -290,6 +290,45 @@
       background-color: #1f2937;
       color: #9ca3af;
     }
+    
+    #mic-button {
+      background-color: #2563eb;
+      border: none;
+      border-radius: 4px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #mic-button img {
+      width: 20px;
+      height: 20px;
+    }
+    .dark-mode #mic-button {
+      background-color: #374151;
+    }
+
+    .bot-controls {
+      display: none;
+      margin-top: 4px;
+      gap: 6px;
+    }
+    .message-container:hover .bot-controls {
+      display: flex;
+    }
+    .bot-controls button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px;
+      color: #444;
+    }
+    .dark-mode .bot-controls button {
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
