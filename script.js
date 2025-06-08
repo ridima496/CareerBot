@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("user-input");
   const chatBox = document.getElementById("chat-box");
   const darkToggle = document.getElementById("dark-toggle");
-  const menuToggle = document.getElementById("menu-toggle");
   const sidebar = document.getElementById("sidebar");
   const newChatBtn = document.getElementById("new-chat");
   const chatList = document.getElementById("chat-list");
@@ -42,10 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
     chats.sort((a, b) => b.timestamp - a.timestamp).forEach(chat => {
       const div = document.createElement("div");
       div.className = "chat-item";
+      div.dataset.id = chat.id;
+
       if (currentChat?.id === chat.id) {
         div.classList.add("active");
       }
-      div.dataset.id = chat.id;
 
       const title = document.createElement("div");
       title.className = "chat-title-text";
@@ -89,6 +89,10 @@ document.addEventListener("DOMContentLoaded", () => {
         chat.messages.forEach(m => appendMessage(m.sender, m.text, false, m.sender === "CareerBot"));
         introScreen.style.display = "none";
         hasUserMessaged = true;
+
+        // Update highlight
+        document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+        div.classList.add('active');
       };
 
       chatList.appendChild(div);
@@ -189,22 +193,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.toggle("dark-mode");
   });
 
-  menuToggle?.addEventListener("click", () => {
-    sidebar.classList.toggle("active");
-  });
-
   newChatBtn?.addEventListener("click", () => {
     if (currentChat?.messages?.length) {
       saveChats();
     }
     startNewChat();
-    introScreen.style.display = "flex";
-    hasUserMessaged = false;
   });
 
   function startNewChat() {
     currentChat = null;
     chatBox.innerHTML = "";
+    introScreen.style.display = "flex";
+    hasUserMessaged = false;
   }
 
   renderChatList();
