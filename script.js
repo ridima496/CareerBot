@@ -80,7 +80,9 @@ document.addEventListener("DOMContentLoaded", () => {
       div.onclick = () => {
         currentChat = chat;
         chatBox.innerHTML = "";
-        chat.messages.forEach(m => appendMessage(m.sender, m.text, false, m.sender === "CareerBot"));
+        chat.messages.forEach(m =>
+          appendMessage(m.sender, m.text, false, m.sender === "CareerBot")
+        );
       };
 
       chatList.appendChild(div);
@@ -98,12 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
       bubble.innerHTML = `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
     } else {
       bubble.innerHTML = message
-      .replace(/\n/g, "<br>")
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.*?)\*/g, "<em>$1</em>");
+        .replace(/\n/g, "<br>")
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/g, "<em>$1</em>");
     }
 
-    if (sender === "CareerBot" && showAvatar) {
+    if (sender === "CareerBot" && showAvatar && !isTyping) {
       const avatar = document.createElement("img");
       avatar.src = "logo512.png";
       avatar.className = "avatar";
@@ -127,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     appendMessage("You", userMessage);
     currentChat.messages.push({ sender: "You", text: userMessage });
 
-    const typingBubble = appendMessage("CareerBot", "", true, true);
+    const typingBubble = appendMessage("CareerBot", "", true, false);
     isBotTyping = true;
     input.disabled = true;
 
@@ -142,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setTimeout(() => {
         typingBubble.remove();
-        simulateTyping("CareerBot", data.response, true);
+        appendMessage("CareerBot", data.response, false, true);
         currentChat.messages.push({ sender: "CareerBot", text: data.response });
         currentChat.timestamp = Date.now();
 
@@ -230,38 +232,3 @@ document.getElementById("export-pdf").addEventListener("click", () => {
   const filename = (currentChat.title || "CareerBot_Chat").replace(/\s+/g, "_") + ".pdf";
   doc.save(filename);
 });
-
-function simulateTyping(sender, text, showAvatar = false) {
-  const container = document.createElement("div");
-  container.className = "message-container";
-
-  const bubble = document.createElement("div");
-  bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
-  bubble.innerHTML = "";  // start empty
-
-  if (sender === "CareerBot" && showAvatar) {
-    const avatar = document.createElement("img");
-    avatar.src = "logo512.png";
-    avatar.className = "avatar";
-    container.appendChild(avatar);
-  }
-
-  container.appendChild(bubble);
-  chatBox.appendChild(container);
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-  let index = 0;
-  const interval = setInterval(() => {
-    if (index < text.length) {
-      const char = text[index];
-      bubble.innerHTML += (char === "\n") ? "<br>" : char;
-      chatBox.scrollTop = chatBox.scrollHeight;
-      index++;
-    } else {
-      clearInterval(interval);
-      isBotTyping = false;
-      input.disabled = false;
-      input.focus();
-    }
-  }, 15); // typing speed
-}
