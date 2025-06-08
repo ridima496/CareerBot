@@ -16,6 +16,37 @@ document.addEventListener("DOMContentLoaded", () => {
   let isBotTyping = false;
   let hasUserMessaged = false;
 
+  // Add mic button
+  const micBtn = document.createElement("button");
+  micBtn.id = "mic-button";
+  micBtn.title = "Speak";
+  micBtn.innerHTML = `<img src="bc5872f5-4c8e-499c-9329-1881faafae39.png" alt="Mic">`;
+  form.querySelector(".input-controls").insertBefore(micBtn, form.querySelector("button[type='submit']"));
+
+  micBtn.addEventListener("click", () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert("Speech recognition not supported");
+      return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      input.value = transcript;
+      input.focus();
+    };
+
+    recognition.onerror = (e) => {
+      alert("Error: " + e.error);
+    };
+
+    recognition.start();
+  });
+
   function saveChats() {
     localStorage.setItem("careerbot_chats", JSON.stringify(chats));
     renderChatList();
@@ -90,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
         introScreen.style.display = "none";
         hasUserMessaged = true;
 
-        // Update highlight
         document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
         div.classList.add('active');
       };
@@ -123,6 +153,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     container.appendChild(bubble);
+
+    // Add speak + copy buttons on hover
+    if (sender === "CareerBot" && !isTyping) {
+      const controls = document.createElement("div");
+      controls.className = "bot-controls";
+
+      const speakBtn = document.createElement("button");
+      speakBtn.textContent = "🔊";
+      speakBtn.title = "Speak";
+      speakBtn.onclick = () => {
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = "en-US";
+        speechSynthesis.speak(utterance);
+      };
+
+      const copyBtn = document.createElement("button");
+      copyBtn.textContent = "📋";
+      copyBtn.title = "Copy";
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(message).then(() => alert("Copied to clipboard!"));
+      };
+
+      controls.appendChild(speakBtn);
+      controls.appendChild(copyBtn);
+      container.appendChild(controls);
+    }
+
     chatBox.appendChild(container);
     chatBox.scrollTop = chatBox.scrollHeight;
     return bubble;
@@ -194,9 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   newChatBtn?.addEventListener("click", () => {
-    if (currentChat?.messages?.length) {
-      saveChats();
-    }
+    if (currentChat?.messages?.length) saveChats();
     startNewChat();
   });
 
@@ -217,8 +272,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-
     let y = 10;
+
     doc.setFont("helvetica");
     doc.setFontSize(12);
     doc.text("CareerBot – Conversation Export", 10, y);
@@ -228,10 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const sender = msg.sender === "You" ? "You" : "CareerBot";
       const lines = doc.splitTextToSize(`${sender}: ${msg.text}`, 180);
       lines.forEach(line => {
-        if (y > 280) {
-          doc.addPage();
-          y = 10;
-        }
+        if (y > 280) { doc.addPage(); y = 10; }
         doc.text(line, 10, y);
         y += 7;
       });
