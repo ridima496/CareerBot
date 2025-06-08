@@ -20,6 +20,7 @@
     .layout {
       display: flex;
       width: 100%;
+      flex-direction: column;
     }
     .sidebar {
       width: 240px;
@@ -27,6 +28,11 @@
       border-right: 1px solid #e5e7eb;
       padding: 12px;
       overflow-y: auto;
+    }
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
     .sidebar-header {
       display: flex;
@@ -65,35 +71,55 @@
     .chat-item:hover .chat-actions {
       display: flex;
     }
-    .chat-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background-color: #ffffff;
-    }
+
     .header {
       background: linear-gradient(to right, #0260ad, #1f2f66);
       color: white;
-      padding: 10px 16px;
+      padding: 8px 16px;
       display: flex;
       align-items: center;
       font-family: 'Kalam', cursive;
-      font-size: 28px;
+      font-size: 26px;
       font-weight: normal;
-    }
-    .menu-toggle {
-      display: none;
+      height: 50px;
     }
     #chat-title {
       flex: 1;
       text-align: center;
     }
+
+    .action-box {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 4px 16px;
+      background-color: transparent;
+      gap: 10px;
+    }
+    .action-box button {
+      background: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .action-box img {
+      width: 20px;
+      height: 20px;
+    }
+
     .chat-window {
       flex: 1;
       padding: 16px;
       overflow-y: auto;
       position: relative;
     }
+
     .centered-intro {
       position: absolute;
       top: 0;
@@ -107,13 +133,11 @@
       text-align: center;
       pointer-events: none;
     }
+
     .centered-intro .prompt-text {
       font-size: 18px;
       color: #374151;
       margin-bottom: 16px;
-    }
-    .centered-intro .toolbar button {
-      pointer-events: all;
     }
 
     .prompt-text {
@@ -207,6 +231,7 @@
       padding: 8px 16px;
       cursor: pointer;
     }
+
     .bottom-toolbar {
       display: flex;
       flex-wrap: wrap;
@@ -223,35 +248,16 @@
       cursor: pointer;
     }
 
-    .typing-indicator .dots span {
-      animation: blink 1s infinite;
-    }
-    .typing-indicator .dots span:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-    .typing-indicator .dots span:nth-child(3) {
-      animation-delay: 0.4s;
-    }
-    @keyframes blink {
-      0%, 80%, 100% { opacity: 0; }
-      40% { opacity: 1; }
-    }
-
-    #export-pdf {
-      background: white;
-      border: none;
-      border-radius: 4px;
-      padding: 4px;
-      width: 32px;
-      height: 32px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    #export-pdf img {
-      width: 20px;
-      height: 20px;
+    .footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+      padding: 8px;
+      border-top: 1px solid #e5e7eb;
+      background-color: #f9fafb;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* Dark mode overrides */
@@ -295,8 +301,9 @@
       background-color: #374151;
       color: #f9fafb;
     }
-    .dark-mode #export-pdf {
-      background-color: white;
+    .dark-mode .footer-note {
+      background-color: #1f2937;
+      color: #d1d5db;
     }
   </style>
 </head>
@@ -308,22 +315,25 @@
           <h2>CareerBot</h2>
           <div>
             <button id="new-chat" title="New Chat">➕</button>
-            <button id="dark-toggle" title="Toggle Dark Mode">🌙</button>
           </div>
         </div>
         <div id="chat-list"></div>
       </div>
-      <div class="chat-area">
+      <div class="main-content">
         <div class="header">
-          <button id="menu-toggle" class="menu-toggle">☰</button>
           <h3 id="chat-title">CareerBot – Your friendly neighborhood career counsellor!</h3>
-          <button id="export-pdf" title="Download PDF">
+        </div>
+        <div class="action-box">
+          <button id="export-pdf" title="Export">
             <img src="https://i.pinimgproxy.com/?url=aHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS8yNTYvNzI1Ny83MjU3NzkzLnBuZw==&ts=1749358996&sig=ed835a4ca5108393e001b97a81828c1f872d8aec452d80fb266c6848cf92bfe4" alt="Export">
+          </button>
+          <button id="dark-toggle" title="Toggle Dark Mode">
+            <img src="https://i.pinimgproxy.com/?url=aHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS8yNTYvMTIzMDEvMTIzMDEzMDUucG5n&ts=1749360096&sig=6dd344d64850b65c810459a724d2a2e52ec0f6f979a968deb7fd29266dd3d94b" alt="Dark Mode">
           </button>
         </div>
         <div class="chat-window" id="chat-box">
-          <div class="centered-intro" id="intro-screen">
-            <div id="prompt-text" class="prompt-text show">Ask me anything related to career...</div>
+          <div class="centered-intro" id="intro-screen" style="display: flex;">
+            <div id="prompt-text" class="prompt-text">Ask me anything related to career...</div>
             <div class="toolbar">
               <button>Resume Builder</button>
               <button>LinkedIn Enhancer</button>
@@ -344,6 +354,9 @@
             <button>Productivity Booster</button>
           </div>
         </form>
+        <div class="footer-note">
+          As an AI model, CareerBot can make mistakes. Please check important info. © Ridima Jaiswal
+        </div>
       </div>
     </div>
   </div>
