@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CareerBot</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cookie&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&display=swap" rel="stylesheet">
   <style>
     * {
       transition: all 0.3s ease;
@@ -77,8 +77,8 @@
       padding: 10px 16px;
       display: flex;
       align-items: center;
-      font-family: 'Cookie', cursive;
-      font-size: 32px;
+      font-family: 'Kalam', cursive;
+      font-size: 28px;
       font-weight: normal;
     }
     .menu-toggle {
@@ -129,8 +129,8 @@
       padding: 16px;
     }
     .toolbar button {
-      background-color: #0260ad;
-      color: white;
+      background-color: #e5e7eb;
+      color: #111827;
       border: none;
       border-radius: 4px;
       padding: 8px 14px;
@@ -138,7 +138,7 @@
       font-size: 15px;
     }
     .toolbar button:hover {
-      filter: brightness(1.1);
+      background-color: #d1d5db;
     }
 
     .message-container {
@@ -179,26 +179,47 @@
       border-radius: 50%;
       margin-right: 8px;
     }
+
     .input-area {
       display: flex;
+      flex-direction: column;
       padding: 10px;
       border-top: 1px solid #e5e7eb;
       background-color: #f9fafb;
     }
-    .input-area input {
+    .input-controls {
+      display: flex;
+      align-items: center;
+    }
+    .input-controls input {
       flex: 1;
       padding: 8px;
       font-size: 16px;
       border: 1px solid #d1d5db;
       border-radius: 4px;
     }
-    .input-area button {
+    .input-controls button {
       margin-left: 8px;
       background-color: #2563eb;
       color: white;
       border: none;
       border-radius: 4px;
       padding: 8px 16px;
+      cursor: pointer;
+    }
+    .bottom-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .bottom-toolbar button {
+      background-color: #e5e7eb;
+      color: #111827;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 14px;
       cursor: pointer;
     }
 
@@ -217,13 +238,20 @@
     }
 
     #export-pdf {
-      background: transparent;
-      border: 1px solid white;
-      color: white;
-      font-size: 20px;
+      background: white;
+      border: none;
       border-radius: 4px;
-      padding: 4px 8px;
+      padding: 4px;
+      width: 32px;
+      height: 32px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #export-pdf img {
+      width: 20px;
+      height: 20px;
     }
 
     /* Dark mode overrides */
@@ -262,12 +290,13 @@
       color: white;
       border-color: #4b5563;
     }
-    .dark-mode .toolbar button {
-      background-color: #1f2f66;
+    .dark-mode .toolbar button,
+    .dark-mode .bottom-toolbar button {
+      background-color: #374151;
+      color: #f9fafb;
     }
     .dark-mode #export-pdf {
-      border-color: white;
-      color: white;
+      background-color: white;
     }
   </style>
 </head>
@@ -288,11 +317,13 @@
         <div class="header">
           <button id="menu-toggle" class="menu-toggle">☰</button>
           <h3 id="chat-title">CareerBot – Your friendly neighborhood career counsellor!</h3>
-          <button id="export-pdf" title="Download PDF">📄</button>
+          <button id="export-pdf" title="Download PDF">
+            <img src="https://i.pinimgproxy.com/?url=aHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS8yNTYvNzI1Ny83MjU3NzkzLnBuZw==&ts=1749358996&sig=ed835a4ca5108393e001b97a81828c1f872d8aec452d80fb266c6848cf92bfe4" alt="Export">
+          </button>
         </div>
         <div class="chat-window" id="chat-box">
           <div class="centered-intro" id="intro-screen">
-            <div class="prompt-text">Ask something related to career...</div>
+            <div class="prompt-text">Ask me anything related to career...</div>
             <div class="toolbar">
               <button>Resume Builder</button>
               <button>LinkedIn Enhancer</button>
@@ -301,15 +332,17 @@
             </div>
           </div>
         </div>
-        <div class="toolbar" id="feature-toolbar">
-          <button>Resume Builder</button>
-          <button>LinkedIn Enhancer</button>
-          <button>Skill Mapper</button>
-          <button>Productivity Booster</button>
-        </div>
         <form id="chat-form" class="input-area">
-          <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
-          <button type="submit">Send</button>
+          <div class="input-controls">
+            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
+            <button type="submit">Send</button>
+          </div>
+          <div class="bottom-toolbar">
+            <button>Resume Builder</button>
+            <button>LinkedIn Enhancer</button>
+            <button>Skill Mapper</button>
+            <button>Productivity Booster</button>
+          </div>
         </form>
       </div>
     </div>
