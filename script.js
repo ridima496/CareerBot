@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const micBtn = document.createElement("button");
   micBtn.id = "mic-button";
   micBtn.title = "Speak";
-  micBtn.innerHTML = `<img src="bc5872f5-4c8e-499c-9329-1881faafae39.png" alt="Mic">`;
+  micBtn.innerHTML = `<img src="mic-icon.png" alt="Mic">`;
   form.querySelector(".input-controls").insertBefore(micBtn, form.querySelector("button[type='submit']"));
 
   micBtn.addEventListener("click", () => {
