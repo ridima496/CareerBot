@@ -97,7 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isTyping) {
       bubble.innerHTML = `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
     } else {
-      bubble.textContent = message;
+      bubble.innerHTML = message
+      .replace(/\n/g, "<br>")
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.*?)\*/g, "<em>$1</em>");
     }
 
     if (sender === "CareerBot" && showAvatar) {
@@ -139,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setTimeout(() => {
         typingBubble.remove();
-        appendMessage("CareerBot", data.response, false, true);
+        simulateTyping("CareerBot", data.response, true);
         currentChat.messages.push({ sender: "CareerBot", text: data.response });
         currentChat.timestamp = Date.now();
 
@@ -227,3 +230,38 @@ document.getElementById("export-pdf").addEventListener("click", () => {
   const filename = (currentChat.title || "CareerBot_Chat").replace(/\s+/g, "_") + ".pdf";
   doc.save(filename);
 });
+
+function simulateTyping(sender, text, showAvatar = false) {
+  const container = document.createElement("div");
+  container.className = "message-container";
+
+  const bubble = document.createElement("div");
+  bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
+  bubble.innerHTML = "";  // start empty
+
+  if (sender === "CareerBot" && showAvatar) {
+    const avatar = document.createElement("img");
+    avatar.src = "logo512.png";
+    avatar.className = "avatar";
+    container.appendChild(avatar);
+  }
+
+  container.appendChild(bubble);
+  chatBox.appendChild(container);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  let index = 0;
+  const interval = setInterval(() => {
+    if (index < text.length) {
+      const char = text[index];
+      bubble.innerHTML += (char === "\n") ? "<br>" : char;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      index++;
+    } else {
+      clearInterval(interval);
+      isBotTyping = false;
+      input.disabled = false;
+      input.focus();
+    }
+  }, 15); // typing speed
+}
