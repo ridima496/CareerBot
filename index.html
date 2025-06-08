@@ -73,7 +73,8 @@
     }
 
     .header {
-      background: linear-gradient(to right, #004aad, #462b8a);
+      background: url('header-bg.png') no-repeat center center;
+      background-size: cover;
       color: white;
       padding: 20px 24px;
       display: flex;
@@ -168,6 +169,7 @@
     .message-container {
       margin-bottom: 4px;
       display: flex;
+      flex-direction: column;
       align-items: flex-start;
       opacity: 0;
       transform: translateY(10px);
@@ -211,6 +213,29 @@
       margin-right: 8px;
     }
 
+    .bot-controls {
+      display: none;
+      margin-top: 4px;
+      gap: 6px;
+    }
+
+    .message-container:hover .bot-controls {
+      display: flex;
+    }
+
+    .bot-controls button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px;
+      color: #444;
+    }
+
+    .dark-mode .bot-controls button {
+      color: #ccc;
+    }
+
     .input-area {
       display: flex;
       flex-direction: column;
@@ -247,50 +272,6 @@
       cursor: pointer;
     }
 
-    .footer {
-      text-align: center;
-      font-size: 12px;
-      padding: 6px;
-      color: #6b7280;
-      border-top: 1px solid #e5e7eb;
-      background-color: #f9fafb;
-    }
-
-    .dark-mode .sidebar {
-      background-color: #1f2937;
-      color: white;
-    }
-
-    .dark-mode .chat-title-text { color: white; }
-    .dark-mode .chat-window {
-      background: radial-gradient(circle, #1f2937, #111827);
-    }
-    .dark-mode .message.bot {
-      background-color: #1f2937;
-      color: #f9fafb;
-    }
-    .dark-mode .message.user {
-      background-color: #2563eb;
-    }
-    .dark-mode .input-area {
-      background-color: #1f2937;
-    }
-    .dark-mode input,
-    .dark-mode .input-area button {
-      background-color: #374151;
-      color: white;
-      border-color: #4b5563;
-    }
-    .dark-mode .toolbar button,
-    .dark-mode .bottom-toolbar button {
-      background-color: #374151;
-      color: #f9fafb;
-    }
-    .dark-mode .footer {
-      background-color: #1f2937;
-      color: #9ca3af;
-    }
-    
     #mic-button {
       background-color: #2563eb;
       border: none;
@@ -301,34 +282,41 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      margin-left: 8px;
     }
+
     #mic-button img {
       width: 20px;
       height: 20px;
     }
-    .dark-mode #mic-button {
-      background-color: #374151;
+
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      padding: 6px;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+      background-color: #f9fafb;
     }
 
-    .bot-controls {
-      display: none;
-      margin-top: 4px;
-      gap: 6px;
+    /* Dark mode overrides */
+    .dark-mode .sidebar { background-color: #1f2937; color: white; }
+    .dark-mode .chat-title-text { color: white; }
+    .dark-mode .chat-window { background: radial-gradient(circle, #1f2937, #111827); }
+    .dark-mode .message.bot { background-color: #1f2937; color: #f9fafb; }
+    .dark-mode .message.user { background-color: #2563eb; }
+    .dark-mode .input-area { background-color: #1f2937; }
+    .dark-mode input, .dark-mode .input-area button {
+      background-color: #374151;
+      color: white;
+      border-color: #4b5563;
     }
-    .message-container:hover .bot-controls {
-      display: flex;
+    .dark-mode .toolbar button, .dark-mode .bottom-toolbar button {
+      background-color: #374151;
+      color: #f9fafb;
     }
-    .bot-controls button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 2px;
-      color: #444;
-    }
-    .dark-mode .bot-controls button {
-      color: #ccc;
-    }
+    .dark-mode .footer { background-color: #1f2937; color: #9ca3af; }
+    .dark-mode #mic-button { background-color: #374151; }
   </style>
 </head>
 <body>
@@ -337,7 +325,7 @@
       <div class="sidebar-header">
         <h2>CareerBot</h2>
         <button id="new-chat" title="New Chat">
-          <img src="https://icons.veryicon.com/png/o/miscellaneous/o2o-middle-school-project/plus-104.png" alt="New Chat" />
+          <img src="https://img.icons8.com/ios7/512/plus.png" alt="New Chat" />
         </button>
       </div>
       <div id="chat-list"></div>
@@ -371,6 +359,7 @@
       <form id="chat-form" class="input-area">
         <div class="input-controls">
           <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
+          <!-- mic button injected by script.js -->
           <button type="submit">Send</button>
         </div>
         <div class="bottom-toolbar">
