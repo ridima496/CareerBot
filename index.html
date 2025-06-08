@@ -4,27 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CareerBot</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    * {
-      transition: all 0.3s ease;
-    }
+    * { transition: all 0.3s ease; box-sizing: border-box; }
+
     body {
       margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      display: flex;
+      font-family: 'Segoe UI', sans-serif;
       height: 100vh;
+      display: flex;
     }
+
     .layout {
       display: flex;
-      flex: 1;
+      width: 100%;
     }
 
     .sidebar {
       width: 240px;
       background-color: #f9fafb;
       border-right: 1px solid #e5e7eb;
-      padding: 12px;
+      padding: 16px 12px;
       overflow-y: auto;
     }
 
@@ -32,30 +32,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 16px;
     }
 
-    .sidebar-header h2 {
+    .sidebar h2 {
       margin: 0;
       font-size: 20px;
-    }
-
-    #new-chat {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-    }
-
-    #new-chat img {
-      width: 24px;
-      height: 24px;
-    }
-
-    #chat-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      padding-top: 8px;
     }
 
     .chat-item {
@@ -98,14 +81,14 @@
     }
 
     .header {
-      background: linear-gradient(to right, #0260ad, #1f2f66);
+      background: linear-gradient(to right, #004aad, #462b8a);
       color: white;
-      padding: 6px 16px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
-      font-family: 'Kalam', cursive;
-      font-size: 24px;
-      font-weight: normal;
+      font-family: 'Poppins', sans-serif;
+      font-size: 22px;
+      font-weight: 500;
     }
 
     #chat-title {
@@ -120,11 +103,11 @@
       gap: 10px;
     }
 
-    .header-buttons button {
+    .header-buttons button, #new-chat {
       background: white;
       border: none;
-      border-radius: 4px;
-      padding: 4px;
+      border-radius: 50%;
+      padding: 6px;
       width: 32px;
       height: 32px;
       cursor: pointer;
@@ -133,9 +116,9 @@
       justify-content: center;
     }
 
-    .header-buttons button img {
-      width: 20px;
-      height: 20px;
+    .header-buttons img, #new-chat img {
+      width: 18px;
+      height: 18px;
     }
 
     .chat-window {
@@ -143,6 +126,49 @@
       padding: 16px;
       overflow-y: auto;
       background: radial-gradient(circle, #ffffff, #f3f4f6);
+      position: relative;
+    }
+
+    .centered-intro {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    #prompt-text {
+      font-size: 18px;
+      color: #374151;
+      margin-bottom: 16px;
+    }
+
+    .toolbar, .bottom-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .toolbar button,
+    .bottom-toolbar button {
+      background-color: #f5f7fa;
+      color: #111827;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .toolbar button:hover,
+    .bottom-toolbar button:hover {
+      background-color: #e2e6eb;
     }
 
     .message-container {
@@ -173,7 +199,6 @@
       padding: 10px;
       border-radius: 8px;
       max-width: 70%;
-      word-wrap: break-word;
     }
 
     .message.bot {
@@ -183,7 +208,6 @@
       padding: 10px;
       border-radius: 8px;
       max-width: 70%;
-      word-wrap: break-word;
     }
 
     .avatar {
@@ -229,27 +253,6 @@
       cursor: pointer;
     }
 
-    .bottom-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .bottom-toolbar button {
-      background-color: #f5f7fa;
-      color: #111827;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 12px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .bottom-toolbar button:hover {
-      background-color: #e2e6eb;
-    }
-
     .footer {
       text-align: center;
       font-size: 12px;
@@ -259,8 +262,13 @@
       background-color: #f9fafb;
     }
 
+    /* Dark mode styles */
     .dark-mode .sidebar {
       background-color: #1f2937;
+      color: white;
+    }
+
+    .dark-mode .chat-title-text {
       color: white;
     }
 
@@ -296,6 +304,7 @@
       border-color: #4b5563;
     }
 
+    .dark-mode .toolbar button,
     .dark-mode .bottom-toolbar button {
       background-color: #374151;
       color: #f9fafb;
@@ -309,7 +318,6 @@
 </head>
 <body>
   <div class="layout">
-    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <h2>CareerBot</h2>
@@ -320,25 +328,31 @@
       <div id="chat-list"></div>
     </div>
 
-    <!-- Chat Area -->
     <div class="chat-area">
-      <!-- Header (Chat Only) -->
       <div class="header">
         <h3 id="chat-title">CareerBot – Your friendly neighborhood career counsellor!</h3>
         <div class="header-buttons">
           <button id="export-pdf" title="Download PDF">
-            <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export" />
+            <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export">
           </button>
           <button id="dark-toggle" title="Toggle Dark Mode">
-            <img src="https://cdn-icons-png.flaticon.com/512/6714/6714978.png" alt="Dark Mode" />
+            <img src="https://cdn-icons-png.flaticon.com/512/6714/6714978.png" alt="Dark Mode">
           </button>
         </div>
       </div>
 
-      <!-- Chat Window -->
-      <div class="chat-window" id="chat-box"></div>
+      <div class="chat-window" id="chat-box">
+        <div class="centered-intro" id="intro-screen">
+          <div id="prompt-text">Ask me anything related to career...</div>
+          <div class="toolbar">
+            <button>Resume Builder</button>
+            <button>LinkedIn Enhancer</button>
+            <button>Skill Mapper</button>
+            <button>Productivity Booster</button>
+          </div>
+        </div>
+      </div>
 
-      <!-- Input and Toolbar -->
       <form id="chat-form" class="input-area">
         <div class="input-controls">
           <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
@@ -352,14 +366,12 @@
         </div>
       </form>
 
-      <!-- Footer -->
       <div class="footer">
         As an AI model, CareerBot can make mistakes. Please check important info. © Ridima Jaiswal
       </div>
     </div>
   </div>
 
-  <!-- Scripts -->
   <script src="script.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
