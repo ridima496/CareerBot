@@ -7,18 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
   <style>
     * { transition: all 0.3s ease; box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      height: 100vh;
-      display: flex;
-    }
-
-    .layout {
-      display: flex;
-      width: 100%;
-    }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; }
+    .layout { display: flex; width: 100%; }
 
     .sidebar {
       width: 240px;
@@ -49,8 +39,11 @@
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
-      margin-bottom: 4px
+      margin-bottom: 12px;
     }
+
+    .chat-item.active { background-color: #dbeafe; }
+    .dark-mode .chat-item.active { background-color: #374151; }
 
     .chat-item:hover {
       background-color: #e3e6e6;
@@ -70,9 +63,7 @@
       gap: 5px;
     }
 
-    .chat-item:hover .chat-actions {
-      display: flex;
-    }
+    .chat-item:hover .chat-actions { display: flex; }
 
     .chat-area {
       flex: 1;
@@ -89,7 +80,7 @@
       align-items: center;
       font-family: 'Poppins', sans-serif;
       font-size: 22px;
-      font-weight: 250;
+      font-weight: 500;
     }
 
     #chat-title {
@@ -153,7 +144,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 24px;
+      margin-top: 8px;
       justify-content: flex-start;
       padding-left: 16px;
     }
@@ -265,64 +256,36 @@
       background-color: #f9fafb;
     }
 
-    .chat-item.active {
-      background-color: #dbeafe;
-    }
-
-    /* Dark mode styles */
-    .dark-mode .chat-item.active {
-      background-color: #374151;
-    }
-
-    .dark-mode .prompt-text {
-      font-size: 18px;
-      color: #d5d9e0;
-      margin-bottom: 8px;
-    }
-    
     .dark-mode .sidebar {
       background-color: #1f2937;
       color: white;
     }
 
-    .dark-mode .chat-title-text {
-      color: white;
-    }
-
+    .dark-mode .chat-title-text { color: white; }
     .dark-mode .chat-window {
       background: radial-gradient(circle, #1f2937, #111827);
     }
-
-    .dark-mode .chat-window {
-      background-color: #111827;
-    }
-
     .dark-mode .message.bot {
       background-color: #1f2937;
       color: #f9fafb;
     }
-
     .dark-mode .message.user {
       background-color: #2563eb;
     }
-
     .dark-mode .input-area {
       background-color: #1f2937;
     }
-
     .dark-mode input,
     .dark-mode .input-area button {
       background-color: #374151;
       color: white;
       border-color: #4b5563;
     }
-
     .dark-mode .toolbar button,
     .dark-mode .bottom-toolbar button {
       background-color: #374151;
       color: #f9fafb;
     }
-
     .dark-mode .footer {
       background-color: #1f2937;
       color: #9ca3af;
@@ -356,7 +319,7 @@
 
       <div class="chat-window" id="chat-box">
         <div class="centered-intro" id="intro-screen">
-          <div id="prompt-text">Ask me anything related to career...</div>
+          <div id="prompt-text" class="prompt-text">Ask me anything related to career...</div>
           <div class="toolbar">
             <button>Resume Builder</button>
             <button>LinkedIn Enhancer</button>
