@@ -95,7 +95,7 @@
     #chat-title {
       flex: 1;
       text-align: center;
-      margin: 0;
+      margin: 6px;
     }
 
     .header-buttons {
@@ -265,7 +265,17 @@
       background-color: #f9fafb;
     }
 
+    .chat-item.active {
+      border: 2px solid #2563eb;
+      background-color: #dbeafe;
+    }
+
     /* Dark mode styles */
+    .dark-mode .chat-item.active {
+      border: 2px solid #60a5fa;
+      background-color: #1e3a8a;
+    }
+    
     .dark-mode .sidebar {
       background-color: #1f2937;
       color: white;
