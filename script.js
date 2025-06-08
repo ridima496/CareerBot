@@ -7,8 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById("sidebar");
   const newChatBtn = document.getElementById("new-chat");
   const chatList = document.getElementById("chat-list");
-  const promptText = document.getElementById("prompt-text");
-  const featureToolbar = document.getElementById("feature-toolbar");
+  const introScreen = document.getElementById("intro-screen");
   const exportBtn = document.getElementById("export-pdf");
 
   const BACKEND_URL = "https://careerbot-backend-i1qt.onrender.com/get_response";
@@ -85,8 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentChat = chat;
         chatBox.innerHTML = "";
         chat.messages.forEach(m => appendMessage(m.sender, m.text, false, m.sender === "CareerBot"));
-        promptText.classList.remove("show");
-        featureToolbar.classList.remove("show");
+        introScreen.style.display = "none";
         hasUserMessaged = true;
       };
 
@@ -132,8 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!hasUserMessaged) {
-      promptText.classList.remove("show");
-      featureToolbar.classList.remove("show");
+      introScreen.style.display = "none";
       hasUserMessaged = true;
     }
 
@@ -198,8 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
       saveChats();
     }
     startNewChat();
-    promptText.classList.add("show");
-    featureToolbar.classList.add("show");
+    introScreen.style.display = "flex";
     hasUserMessaged = false;
   });
 
