@@ -78,7 +78,8 @@
       display: flex;
       align-items: center;
       font-family: 'Cookie', cursive;
-      font-size: 26px;
+      font-size: 32px;
+      font-weight: normal;
     }
     .menu-toggle {
       display: none;
@@ -87,20 +88,45 @@
       flex: 1;
       text-align: center;
     }
-    .toolbar {
-      opacity: 0;
-      transform: translateY(10px);
+    .chat-window {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      position: relative;
+    }
+    .centered-intro {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
       pointer-events: none;
+    }
+    .centered-intro .prompt-text {
+      font-size: 18px;
+      color: #374151;
+      margin-bottom: 16px;
+    }
+    .centered-intro .toolbar button {
+      pointer-events: all;
+    }
+
+    .prompt-text {
+      display: none;
+    }
+
+    .toolbar {
+      opacity: 1;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       justify-content: center;
       padding: 16px;
-    }
-    .toolbar.show {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: all;
     }
     .toolbar button {
       background-color: #0260ad;
@@ -114,11 +140,7 @@
     .toolbar button:hover {
       filter: brightness(1.1);
     }
-    .chat-window {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-    }
+
     .message-container {
       margin-bottom: 12px;
       display: flex;
@@ -179,19 +201,6 @@
       padding: 8px 16px;
       cursor: pointer;
     }
-    .prompt-text {
-      display: block;
-      opacity: 0;
-      text-align: center;
-      font-size: 18px;
-      padding-top: 24px;
-      color: #374151;
-      transform: translateY(10px);
-    }
-    .prompt-text.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
 
     .typing-indicator .dots span {
       animation: blink 1s infinite;
@@ -206,13 +215,14 @@
       0%, 80%, 100% { opacity: 0; }
       40% { opacity: 1; }
     }
+
     #export-pdf {
-      margin-left: auto;
-      background-color: #10b981;
+      background: transparent;
+      border: 1px solid white;
       color: white;
-      border: none;
+      font-size: 20px;
       border-radius: 4px;
-      padding: 6px 12px;
+      padding: 4px 8px;
       cursor: pointer;
     }
 
@@ -256,7 +266,8 @@
       background-color: #1f2f66;
     }
     .dark-mode #export-pdf {
-      background-color: #059669;
+      border-color: white;
+      color: white;
     }
   </style>
 </head>
@@ -277,10 +288,19 @@
         <div class="header">
           <button id="menu-toggle" class="menu-toggle">☰</button>
           <h3 id="chat-title">CareerBot – Your friendly neighborhood career counsellor!</h3>
-          <button id="export-pdf" title="Download PDF">📄 Export</button>
+          <button id="export-pdf" title="Download PDF">📄</button>
         </div>
-        <div class="chat-window" id="chat-box"></div>
-        <div class="prompt-text" id="prompt-text">Ask something related to career...</div>
+        <div class="chat-window" id="chat-box">
+          <div class="centered-intro" id="intro-screen">
+            <div class="prompt-text">Ask something related to career...</div>
+            <div class="toolbar">
+              <button>Resume Builder</button>
+              <button>LinkedIn Enhancer</button>
+              <button>Skill Mapper</button>
+              <button>Productivity Booster</button>
+            </div>
+          </div>
+        </div>
         <div class="toolbar" id="feature-toolbar">
           <button>Resume Builder</button>
           <button>LinkedIn Enhancer</button>
