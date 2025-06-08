@@ -4,232 +4,261 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CareerBot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cookie&display=swap" rel="stylesheet">
   <style>
-  body {
-    margin: 0;
-    font-family: "Segoe UI", sans-serif;
-  }
-  .App {
-    display: flex;
-    height: 100vh;
-  }
-  .layout {
-    display: flex;
-    width: 100%;
-  }
-  .sidebar {
-    width: 240px;
-    background-color: #f9fafb;
-    border-right: 1px solid #e5e7eb;
-    padding: 12px;
-    overflow-y: auto;
-  }
-  .sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  #chat-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .chat-item {
-    padding: 8px;
-    background-color: #e0e7ff;
-    border-radius: 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-  }
-  .chat-item:hover {
-    background-color: #c7d2fe;
-  }
-  .chat-title-text {
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: #111827;
-  }
-  .chat-actions {
-    display: none;
-    gap: 5px;
-  }
-  .chat-item:hover .chat-actions {
-    display: flex;
-  }
-  .chat-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: #ffffff;
-  }
-  .header {
-    background-color: #2563eb;
-    color: white;
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-  }
-  .menu-toggle {
-    display: none;
-  }
-  #chat-title {
-    font-family: 'Brush Script MT', cursive;
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    flex: 1;
-  }
-  .toolbar {
-    padding: 10px;
-    background-color: #f3f4f6;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .toolbar button {
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
-    cursor: pointer;
-  }
-  .chat-window {
-    flex: 1;
-    padding: 16px;
-    overflow-y: auto;
-  }
-  .message-container {
-    margin-bottom: 12px;
-    display: flex;
-    align-items: flex-start;
-  }
-  .message.user {
-    background-color: #2563eb;
-    color: white;
-    margin-left: auto;
-    padding: 10px;
-    border-radius: 8px;
-    max-width: 70%;
-    word-wrap: break-word;
-  }
-  .message.bot {
-    background-color: #f3f4f6;
-    color: #111827;
-    margin-right: auto;
-    padding: 10px;
-    border-radius: 8px;
-    max-width: 70%;
-    word-wrap: break-word;
-  }
-  .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    margin-right: 8px;
-  }
-  .input-area {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #e5e7eb;
-    background-color: #f9fafb;
-  }
-  .input-area input {
-    flex: 1;
-    padding: 8px;
-    font-size: 16px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-  }
-  .input-area button {
-    margin-left: 8px;
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    cursor: pointer;
-  }
+    * {
+      transition: all 0.3s ease;
+    }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+    }
+    .App {
+      display: flex;
+      height: 100vh;
+    }
+    .layout {
+      display: flex;
+      width: 100%;
+    }
+    .sidebar {
+      width: 240px;
+      background-color: #f9fafb;
+      border-right: 1px solid #e5e7eb;
+      padding: 12px;
+      overflow-y: auto;
+    }
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    #chat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .chat-item {
+      padding: 8px;
+      background-color: #e0e7ff;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .chat-item:hover {
+      background-color: #c7d2fe;
+    }
+    .chat-title-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #111827;
+    }
+    .chat-actions {
+      display: none;
+      gap: 5px;
+    }
+    .chat-item:hover .chat-actions {
+      display: flex;
+    }
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #ffffff;
+    }
+    .header {
+      background: linear-gradient(to right, #0260ad, #1f2f66);
+      color: white;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      font-family: 'Cookie', cursive;
+      font-size: 26px;
+    }
+    .menu-toggle {
+      display: none;
+    }
+    #chat-title {
+      flex: 1;
+      text-align: center;
+    }
+    .toolbar {
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      padding: 16px;
+    }
+    .toolbar.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+    .toolbar button {
+      background-color: #0260ad;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .toolbar button:hover {
+      filter: brightness(1.1);
+    }
+    .chat-window {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .message-container {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.4s ease forwards;
+    }
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .message.user {
+      background-color: #2563eb;
+      color: white;
+      margin-left: auto;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+    .message.bot {
+      background-color: #f3f4f6;
+      color: #111827;
+      margin-right: auto;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .input-area {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #e5e7eb;
+      background-color: #f9fafb;
+    }
+    .input-area input {
+      flex: 1;
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+    }
+    .input-area button {
+      margin-left: 8px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .prompt-text {
+      display: block;
+      opacity: 0;
+      text-align: center;
+      font-size: 18px;
+      padding-top: 24px;
+      color: #374151;
+      transform: translateY(10px);
+    }
+    .prompt-text.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-  /* Dark mode styles */
-  .dark-mode .sidebar {
-    background-color: #1f2937;
-    color: white;
-  }
-  .dark-mode .chat-title-text {
-    color: white;
-  }
-  .dark-mode .chat-item {
-    background-color: #374151;
-  }
-  .dark-mode .chat-item:hover {
-    background-color: #4b5563;
-  }
-  .dark-mode .chat-area {
-    background-color: #111827;
-  }
-  .dark-mode .header {
-    background-color: #3b82f6;
-  }
-  .dark-mode .toolbar {
-    background-color: #1f2937;
-  }
-  .dark-mode .toolbar button {
-    background-color: #3b82f6;
-  }
-  .dark-mode .chat-window {
-    background-color: #111827;
-  }
-  .dark-mode .message.bot {
-    background-color: #1f2937;
-    color: #f9fafb;
-  }
-  .dark-mode .message.user {
-    background-color: #2563eb;
-  }
-  .dark-mode .input-area {
-    background-color: #1f2937;
-  }
-  .dark-mode input,
-  .dark-mode .input-area button {
-    background-color: #374151;
-    color: white;
-    border-color: #4b5563;
-  }
+    .typing-indicator .dots span {
+      animation: blink 1s infinite;
+    }
+    .typing-indicator .dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing-indicator .dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0; }
+      40% { opacity: 1; }
+    }
+    #export-pdf {
+      margin-left: auto;
+      background-color: #10b981;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
 
-  /* Typing indicator */
-  .typing-indicator .dots span {
-    animation: blink 1s infinite;
-  }
-  .typing-indicator .dots span:nth-child(2) {
-    animation-delay: 0.2s;
-  }
-  .typing-indicator .dots span:nth-child(3) {
-    animation-delay: 0.4s;
-  }
-  @keyframes blink {
-    0%, 80%, 100% { opacity: 0; }
-    40% { opacity: 1; }
-  }
-
-  #export-pdf {
-    margin-left: auto;
-    background-color: #10b981;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
-    cursor: pointer;
-  }
-  .dark-mode #export-pdf {
-    background-color: #059669;
-  }
-</style>
+    /* Dark mode overrides */
+    .dark-mode .sidebar {
+      background-color: #1f2937;
+      color: white;
+    }
+    .dark-mode .chat-title-text {
+      color: white;
+    }
+    .dark-mode .chat-item {
+      background-color: #374151;
+    }
+    .dark-mode .chat-item:hover {
+      background-color: #4b5563;
+    }
+    .dark-mode .chat-area {
+      background-color: #111827;
+    }
+    .dark-mode .chat-window {
+      background-color: #111827;
+    }
+    .dark-mode .message.bot {
+      background-color: #1f2937;
+      color: #f9fafb;
+    }
+    .dark-mode .message.user {
+      background-color: #2563eb;
+    }
+    .dark-mode .input-area {
+      background-color: #1f2937;
+    }
+    .dark-mode input,
+    .dark-mode .input-area button {
+      background-color: #374151;
+      color: white;
+      border-color: #4b5563;
+    }
+    .dark-mode .toolbar button {
+      background-color: #1f2f66;
+    }
+    .dark-mode #export-pdf {
+      background-color: #059669;
+    }
+  </style>
 </head>
 <body>
   <div class="App">
@@ -250,13 +279,14 @@
           <h3 id="chat-title">CareerBot – Your friendly neighborhood career counsellor!</h3>
           <button id="export-pdf" title="Download PDF">📄 Export</button>
         </div>
-        <div class="toolbar">
+        <div class="chat-window" id="chat-box"></div>
+        <div class="prompt-text" id="prompt-text">Ask something related to career...</div>
+        <div class="toolbar" id="feature-toolbar">
           <button>Resume Builder</button>
           <button>LinkedIn Enhancer</button>
           <button>Skill Mapper</button>
           <button>Productivity Booster</button>
         </div>
-        <div class="chat-window" id="chat-box"></div>
         <form id="chat-form" class="input-area">
           <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
           <button type="submit">Send</button>
