@@ -72,28 +72,36 @@
       background-color: #ffffff;
     }
 
-    .header {
-      background: url('header-bg.png') no-repeat center center;
-      background-size: cover;
-      color: white;
-      padding: 20px 24px;
-      display: flex;
-      align-items: center;
-      font-family: 'Poppins', sans-serif;
-      font-size: 22px;
-      font-weight: 500;
-    }
-
     #chat-title {
       flex: 1;
       text-align: center;
       margin: 6px;
     }
 
-    .header-buttons {
+    .top-right-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 20px 24px 0 0;
+    }
+
+    .top-right-buttons button {
+      background: white;
+      border: none;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      padding: 8px;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+    }
+
+    .top-right-buttons img {
+      width: 22px;
+      height: 22px;
     }
 
     .header-buttons button, #new-chat {
@@ -192,6 +200,7 @@
       background-color: #2563eb;
       color: white;
       margin-left: auto;
+      margin-right: 100px;
       padding: 10px;
       border-radius: 8px;
       max-width: 70%;
@@ -201,6 +210,7 @@
       background-color: #f3f4f6;
       color: #111827;
       margin-right: auto;
+      margin-left: 100px;
       padding: 10px;
       border-radius: 8px;
       max-width: 70%;
@@ -211,6 +221,7 @@
       height: 32px;
       border-radius: 50%;
       margin-right: 8px;
+      margin-left: 100px;
     }
 
     .bot-controls {
@@ -353,17 +364,15 @@
     </div>
 
     <div class="chat-area">
-      <div class="header">
-        <h3 id="chat-title">CareerBot – Your friendly neighborhood career counsellor!</h3>
-        <div class="header-buttons">
-          <button id="export-pdf" title="Download PDF">
-            <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export">
-          </button>
-          <button id="dark-toggle" title="Toggle Dark Mode">
-            <img src="https://cdn-icons-png.flaticon.com/512/6714/6714978.png" alt="Dark Mode">
-          </button>
-        </div>
+      <div class="top-right-buttons">
+        <button id="export-pdf" title="Download PDF">
+          <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export">
+        </button>
+        <button id="dark-toggle" title="Toggle Dark Mode">
+          <img src="https://cdn-icons-png.flaticon.com/512/6714/6714978.png" alt="Dark Mode">
+        </button>
       </div>
+    </div>
 
       <div class="chat-window" id="chat-box">
         <div class="centered-intro" id="intro-screen">
