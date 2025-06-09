@@ -353,6 +353,7 @@
 </head>
 <body>
   <div class="layout">
+    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <h2>CareerBot</h2>
@@ -363,7 +364,10 @@
       <div id="chat-list"></div>
     </div>
 
+    <!-- Chat Area -->
     <div class="chat-area">
+
+      <!-- Top Right Buttons -->
       <div class="top-right-buttons">
         <button id="export-pdf" title="Download PDF">
           <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export">
@@ -372,8 +376,8 @@
           <img src="https://cdn-icons-png.flaticon.com/512/6714/6714978.png" alt="Dark Mode">
         </button>
       </div>
-    </div>
 
+      <!-- Chat Window -->
       <div class="chat-window" id="chat-box">
         <div class="centered-intro" id="intro-screen">
           <div id="prompt-text" class="prompt-text">Ask me anything related to career...</div>
@@ -386,6 +390,7 @@
         </div>
       </div>
 
+      <!-- Chat Input -->
       <form id="chat-form" class="input-area">
         <div class="input-controls">
           <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
@@ -399,11 +404,13 @@
         </div>
       </form>
 
+      <!-- Footer -->
       <div class="footer">
         As an AI model, CareerBot can make mistakes. Please check important info. © Ridima Jaiswal
       </div>
-    </div>
-  </div>
+
+    </div> <!-- End of .chat-area -->
+  </div> <!-- End of .layout -->
 
   <script src="script.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
