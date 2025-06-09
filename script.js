@@ -170,16 +170,33 @@ document.addEventListener("DOMContentLoaded", () => {
       controls.className = "bot-controls";
       controls.style.marginLeft = "40px";
 
+      let isSpeaking = false;
+      let utterance = null;
+
       const speakBtn = document.createElement("button");
       speakBtn.textContent = "🔊";
       speakBtn.title = "Speak";
-      speakBtn.onclick = () => {
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = "en-US";
-        speechSynthesis.cancel();
-        speechSynthesis.speak(utterance);
-      };
 
+      speakBtn.onclick = () => {
+        if (isSpeaking) {
+          speechSynthesis.cancel();
+          speakBtn.textContent = "🔊";
+          isSpeaking = false;
+        } else {
+          utterance = new SpeechSynthesisUtterance(message);
+          utterance.lang = "en-US";
+
+          utterance.onend = () => {
+            speakBtn.textContent = "🔊";
+            isSpeaking = false;
+          };
+
+          speechSynthesis.speak(utterance);
+          speakBtn.textContent = "⏹";
+          isSpeaking = true;
+        }
+      };
+      
       const copyBtn = document.createElement("button");
       copyBtn.textContent = "📋";
       copyBtn.title = "Copy";
