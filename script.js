@@ -16,10 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let isBotTyping = false;
   let hasUserMessaged = false;
 
-  // 🎤 Mic button
+  // 🎙️ Mic Button
   const micBtn = document.createElement("button");
   micBtn.id = "mic-button";
-  micBtn.title = "Speak";
+  micBtn.title = "Record";
   micBtn.innerHTML = `<img src="mic-icon.png" alt="Mic">`;
   form.querySelector(".input-controls").insertBefore(micBtn, form.querySelector("button[type='submit']"));
 
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   micBtn.addEventListener("click", () => {
     if (!('webkitSpeechRecognition' in window)) {
-      alert("Speech recognition not supported on this device");
+      alert("Speech recognition not supported");
       return;
     }
 
@@ -47,16 +47,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       recognition.onend = () => {
         isRecording = false;
+        micBtn.classList.remove("recording");
         micBtn.innerHTML = `<img src="mic-icon.png" alt="Mic">`;
       };
 
       recognition.start();
       isRecording = true;
-      micBtn.innerHTML = "⏹"; // Stop icon
-
+      micBtn.classList.add("recording");
+      micBtn.innerHTML = "⏹";
     } else {
       recognition.stop();
       isRecording = false;
+      micBtn.classList.remove("recording");
       micBtn.innerHTML = `<img src="mic-icon.png" alt="Mic">`;
     }
   });
@@ -88,9 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       div.className = "chat-item";
       div.dataset.id = chat.id;
 
-      if (currentChat?.id === chat.id) {
-        div.classList.add("active");
-      }
+      if (currentChat?.id === chat.id) div.classList.add("active");
 
       const title = document.createElement("div");
       title.className = "chat-title-text";
@@ -134,8 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
         chat.messages.forEach(m => appendMessage(m.sender, m.text, false, m.sender === "CareerBot"));
         introScreen.style.display = "none";
         hasUserMessaged = true;
-
-        document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
         div.classList.add('active');
       };
 
@@ -158,10 +157,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isTyping) {
       bubble.innerHTML = `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
     } else {
-      bubble.innerHTML = message
+      // Render neat HTML tables and formatting
+      const rendered = message
         .replace(/\n/g, "<br>")
         .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-        .replace(/\*(.*?)\*/g, "<em>$1</em>");
+        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+        .replace(/\|(.+?)\|/g, (_, row) => {
+          const cells = row.split("|").map(cell => `<td>${cell.trim()}</td>`).join("");
+          return `<table style="border-collapse: collapse; margin: 6px 0;"><tr>${cells}</tr></table>`;
+        });
+      bubble.innerHTML = rendered;
     }
 
     if (sender === "CareerBot" && showAvatar && !isTyping) {
@@ -174,13 +179,12 @@ document.addEventListener("DOMContentLoaded", () => {
     messageRow.appendChild(bubble);
     container.appendChild(messageRow);
 
-    // Speak + Copy buttons
+    // 🔊 Speak + 📋 Copy Buttons
     if (sender === "CareerBot" && !isTyping) {
       const controls = document.createElement("div");
       controls.className = "bot-controls";
 
       let isSpeaking = false;
-      let utterance;
 
       const speakBtn = document.createElement("button");
       speakBtn.textContent = "🔊";
@@ -188,19 +192,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
       speakBtn.onclick = () => {
         if (isSpeaking) {
-          speechSynthesis.cancel();
-          isSpeaking = false;
+          responsiveVoice.cancel();
           speakBtn.textContent = "🔊";
+          isSpeaking = false;
         } else {
-          utterance = new SpeechSynthesisUtterance(message);
-          utterance.lang = "en-US";
-          speechSynthesis.speak(utterance);
-          isSpeaking = true;
+          responsiveVoice.speak(message, "UK English Male");
           speakBtn.textContent = "⏹";
-          utterance.onend = () => {
-            isSpeaking = false;
+          isSpeaking = true;
+          setTimeout(() => {
             speakBtn.textContent = "🔊";
-          };
+            isSpeaking = false;
+          }, message.length * 60);
         }
       };
 
