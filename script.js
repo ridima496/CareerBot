@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let isBotTyping = false;
   let hasUserMessaged = false;
 
-  // 🎙️ Mic Button
   const micBtn = document.createElement("button");
   micBtn.id = "mic-button";
   micBtn.title = "Record";
@@ -157,16 +156,45 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isTyping) {
       bubble.innerHTML = `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
     } else {
-      // Render neat HTML tables and formatting
-      const rendered = message
-        .replace(/\n/g, "<br>")
-        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-        .replace(/\*(.*?)\*/g, "<em>$1</em>")
-        .replace(/\|(.+?)\|/g, (_, row) => {
-          const cells = row.split("|").map(cell => `<td>${cell.trim()}</td>`).join("");
-          return `<table style="border-collapse: collapse; margin: 6px 0;"><tr>${cells}</tr></table>`;
+      function convertMarkdownToHTMLTable(text) {
+        const lines = text.trim().split("\n");
+        const tableStart = lines.findIndex(line => /^\|.*\|$/.test(line) && lines[lines.indexOf(line)+1]?.includes("---"));
+        if (tableStart === -1) return null;
+
+        const headerLine = lines[tableStart];
+        const dividerLine = lines[tableStart + 1];
+        const dataLines = lines.slice(tableStart + 2);
+
+        const headers = headerLine.split("|").map(h => h.trim()).filter(Boolean);
+        const rows = dataLines.map(line =>
+          line.split("|").map(cell => cell.trim()).filter(Boolean)
+        );
+
+        let tableHTML = `<div class="table-wrapper"><table class="bot-table"><thead><tr>`;
+        headers.forEach(h => tableHTML += `<th>${h}</th>`);
+        tableHTML += `</tr></thead><tbody>`;
+        rows.forEach(row => {
+          tableHTML += `<tr>` + row.map(cell => `<td>${cell}</td>`).join("") + `</tr>`;
         });
-      bubble.innerHTML = rendered;
+        tableHTML += `</tbody></table></div>`;
+
+        return {
+          before: lines.slice(0, tableStart).join("<br>"),
+          table: tableHTML,
+          after: lines.slice(tableStart + 2 + rows.length).join("<br>")
+        };
+      }
+
+      const markdownTable = convertMarkdownToHTMLTable(message);
+      if (markdownTable) {
+        bubble.innerHTML = `${markdownTable.before}<br>${markdownTable.table}<br>${markdownTable.after}`;
+      } else {
+        const rendered = message
+          .replace(/\n/g, "<br>")
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*(.*?)\*/g, "<em>$1</em>");
+        bubble.innerHTML = rendered;
+      }
     }
 
     if (sender === "CareerBot" && showAvatar && !isTyping) {
@@ -179,7 +207,6 @@ document.addEventListener("DOMContentLoaded", () => {
     messageRow.appendChild(bubble);
     container.appendChild(messageRow);
 
-    // 🔊 Speak + 📋 Copy Buttons
     if (sender === "CareerBot" && !isTyping) {
       const controls = document.createElement("div");
       controls.className = "bot-controls";
