@@ -218,7 +218,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch(BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage })
+        body: JSON.stringify({
+          message: userMessage,
+          history: currentChat.messages.slice(-5)
+        })
       });
 
       const data = await response.json();
