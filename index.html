@@ -32,6 +32,39 @@
       padding-bottom: 6px;
     }
 
+    .chat-item {
+      padding: 8px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .chat-item.active { background-color: #dbeafe; }
+    .dark-mode .chat-item.active { background-color: #374151; }
+
+    .chat-item:hover {
+      background-color: #e3e6e6;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    .chat-title-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #111827;
+    }
+
+    .chat-actions {
+      display: none;
+      gap: 5px;
+    }
+
+    .chat-item:hover .chat-actions { display: flex; }
+
     .chat-area {
       flex: 1;
       display: flex;
@@ -40,63 +73,149 @@
       position: relative;
     }
 
-    .top-right-buttons {
+    /* 🔧 Floating buttons at top-right */
+    .floating-buttons {
       position: absolute;
-      top: 10px;
+      top: 12px;
       right: 16px;
       display: flex;
       gap: 10px;
       z-index: 10;
     }
 
-    .top-right-buttons button {
+    .floating-buttons button {
       background: white;
       border: none;
       border-radius: 50%;
-      padding: 6px;
       width: 32px;
       height: 32px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
-    .top-right-buttons img {
+    .floating-buttons img {
       width: 18px;
       height: 18px;
     }
 
     .chat-window {
       flex: 1;
-      padding: 32px 40px 16px;
+      padding: 60px 32px 16px 32px; /* top padding for buttons, side padding for clean look */
       overflow-y: auto;
       background: radial-gradient(circle, #ffffff, #f3f4f6);
     }
 
-    .message-container {
+    .centered-intro {
+      position: absolute;
+      top: 60px;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .prompt-text {
+      font-size: 18px;
+      color: #374151;
       margin-bottom: 8px;
-      max-width: 75%;
+    }
+
+    .toolbar, .bottom-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      justify-content: flex-start;
+      padding-left: 16px;
+    }
+
+    .toolbar button,
+    .bottom-toolbar button {
+      background-color: #f5f7fa;
+      color: #111827;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .toolbar button:hover,
+    .bottom-toolbar button:hover {
+      background-color: #e2e6eb;
+    }
+
+    .message-container {
+      margin-bottom: 16px; /* spacing between messages */
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.4s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .message.user {
       background-color: #2563eb;
       color: white;
       margin-left: auto;
-      padding: 10px;
-      border-radius: 8px;
-      word-wrap: break-word;
     }
 
     .message.bot {
       background-color: #f3f4f6;
       color: #111827;
       margin-right: auto;
+    }
+
+    .message.user,
+    .message.bot {
       padding: 10px;
       border-radius: 8px;
-      word-wrap: break-word;
+      max-width: 70%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .bot-controls {
+      display: none;
+      margin-top: 4px;
+      gap: 6px;
+      padding-left: 6px;
+    }
+
+    .message-container:hover .bot-controls {
+      display: flex;
+    }
+
+    .bot-controls button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px;
+      color: #444;
+    }
+
+    .dark-mode .bot-controls button { color: #ccc; }
 
     .input-area {
       display: flex;
@@ -119,7 +238,7 @@
       border-radius: 4px;
     }
 
-    .input-controls button {
+    .input-controls button[type='submit'] {
       margin-left: 8px;
       background-color: #2563eb;
       color: white;
@@ -127,6 +246,11 @@
       border-radius: 4px;
       padding: 8px 16px;
       cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .input-controls button[type='submit']:hover {
+      transform: scale(1.05);
     }
 
     .footer {
@@ -138,17 +262,24 @@
       background-color: #f9fafb;
     }
 
-    /* Dark Mode */
-    .dark-mode .chat-area { background-color: #111827; }
+    .dark-mode .chat-item:hover { background-color: #717285; }
+    .dark-mode .prompt-text { color: #b8b8b8; }
+    .dark-mode .sidebar { background-color: #1f2937; color: white; }
+    .dark-mode .chat-title-text { color: white; }
     .dark-mode .chat-window { background: radial-gradient(circle, #1f2937, #111827); }
-    .dark-mode .message.bot { background-color: #1f2937; color: #f3f4f6; }
+    .dark-mode .message.bot { background-color: #1f2937; color: #f9fafb; }
+    .dark-mode .message.user { background-color: #2563eb; }
     .dark-mode .input-area { background-color: #1f2937; }
     .dark-mode input, .dark-mode .input-area button {
       background-color: #374151;
       color: white;
       border-color: #4b5563;
     }
-    .dark-mode .top-right-buttons button { background-color: #374151; }
+    .dark-mode .toolbar button, .dark-mode .bottom-toolbar button {
+      background-color: #374151;
+      color: #f9fafb;
+    }
+    .dark-mode .footer { background-color: #1f2937; color: #9ca3af; }
   </style>
 </head>
 <body>
@@ -164,8 +295,7 @@
     </div>
 
     <div class="chat-area">
-      <!-- Top-right buttons only -->
-      <div class="top-right-buttons">
+      <div class="floating-buttons">
         <button id="export-pdf" title="Download PDF">
           <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export">
         </button>
@@ -174,7 +304,6 @@
         </button>
       </div>
 
-      <!-- Chat box -->
       <div class="chat-window" id="chat-box">
         <div class="centered-intro" id="intro-screen">
           <div id="prompt-text" class="prompt-text">Ask me anything related to career...</div>
@@ -187,7 +316,6 @@
         </div>
       </div>
 
-      <!-- Input -->
       <form id="chat-form" class="input-area">
         <div class="input-controls">
           <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
