@@ -70,23 +70,37 @@
       display: flex;
       flex-direction: column;
       background-color: #ffffff;
-      position: relative;
     }
 
-    /* 🔧 Floating buttons at top-right */
-    .floating-buttons {
-      position: absolute;
-      top: 12px;
-      right: 16px;
+    .header {
+      background: url('header-bg.png') no-repeat center center;
+      background-size: cover;
+      color: white;
+      padding: 20px 24px;
       display: flex;
-      gap: 10px;
-      z-index: 10;
+      align-items: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 22px;
+      font-weight: 500;
     }
 
-    .floating-buttons button {
+    #chat-title {
+      flex: 1;
+      text-align: center;
+      margin: 6px;
+    }
+
+    .header-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-buttons button, #new-chat {
       background: white;
       border: none;
       border-radius: 50%;
+      padding: 6px;
       width: 32px;
       height: 32px;
       cursor: pointer;
@@ -95,21 +109,22 @@
       justify-content: center;
     }
 
-    .floating-buttons img {
+    .header-buttons img, #new-chat img {
       width: 18px;
       height: 18px;
     }
 
     .chat-window {
       flex: 1;
-      padding: 60px 32px 16px 32px; /* top padding for buttons, side padding for clean look */
+      padding: 16px;
       overflow-y: auto;
       background: radial-gradient(circle, #ffffff, #f3f4f6);
+      position: relative;
     }
 
     .centered-intro {
       position: absolute;
-      top: 60px;
+      top: 0;
       bottom: 0;
       left: 0;
       right: 0;
@@ -152,7 +167,7 @@
     }
 
     .message-container {
-      margin-bottom: 16px; /* spacing between messages */
+      margin-bottom: 4px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -168,24 +183,27 @@
       }
     }
 
+    .message.user,
+    .message.bot {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
     .message.user {
       background-color: #2563eb;
       color: white;
       margin-left: auto;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 70%;
     }
 
     .message.bot {
       background-color: #f3f4f6;
       color: #111827;
       margin-right: auto;
-    }
-
-    .message.user,
-    .message.bot {
       padding: 10px;
       border-radius: 8px;
       max-width: 70%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .avatar {
@@ -215,7 +233,9 @@
       color: #444;
     }
 
-    .dark-mode .bot-controls button { color: #ccc; }
+    .dark-mode .bot-controls button {
+      color: #ccc;
+    }
 
     .input-area {
       display: flex;
@@ -238,6 +258,11 @@
       border-radius: 4px;
     }
 
+    .input-controls input:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+    }
+
     .input-controls button[type='submit'] {
       margin-left: 8px;
       background-color: #2563eb;
@@ -253,6 +278,36 @@
       transform: scale(1.05);
     }
 
+    .table-wrapper {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .bot-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 14px;
+      min-width: 400px;
+    }
+
+    .bot-table th,
+    .bot-table td {
+      border: 1px solid #d1d5db;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .dark-mode .bot-table th,
+    .dark-mode .bot-table td {
+      border-color: #374151;
+      color: #f3f4f6;
+    }
+
+    .dark-mode .bot-table {
+      background-color: #1f2937;
+    }
+
     .footer {
       text-align: center;
       font-size: 12px;
@@ -262,7 +317,10 @@
       background-color: #f9fafb;
     }
 
-    .dark-mode .chat-item:hover { background-color: #717285; }
+    .dark-mode .chat-item:hover {
+      background-color: #717285;
+    }
+
     .dark-mode .prompt-text { color: #b8b8b8; }
     .dark-mode .sidebar { background-color: #1f2937; color: white; }
     .dark-mode .chat-title-text { color: white; }
@@ -295,13 +353,16 @@
     </div>
 
     <div class="chat-area">
-      <div class="floating-buttons">
-        <button id="export-pdf" title="Download PDF">
-          <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export">
-        </button>
-        <button id="dark-toggle" title="Toggle Dark Mode">
-          <img src="https://cdn-icons-png.flaticon.com/512/6714/6714978.png" alt="Dark Mode">
-        </button>
+      <div class="header">
+        <h3 id="chat-title">CareerBot – Your friendly neighborhood career counsellor!</h3>
+        <div class="header-buttons">
+          <button id="export-pdf" title="Download PDF">
+            <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export">
+          </button>
+          <button id="dark-toggle" title="Toggle Dark Mode">
+            <img src="https://cdn-icons-png.flaticon.com/512/6714/6714978.png" alt="Dark Mode">
+          </button>
+        </div>
       </div>
 
       <div class="chat-window" id="chat-box">
