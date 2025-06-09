@@ -316,6 +316,36 @@
       transform: scale(1.2);
     }
 
+    .table-wrapper {
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .bot-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 14px;
+      min-width: 400px;
+    }
+
+    .bot-table th,
+    .bot-table td {
+      border: 1px solid #d1d5db;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .dark-mode .bot-table th,
+    .dark-mode .bot-table td {
+      border-color: #374151;
+      color: #f3f4f6;
+    }
+
+    .dark-mode .bot-table {
+      background-color: #1f2937;
+    }
+    
     .footer {
       text-align: center;
       font-size: 12px;
