@@ -98,11 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function appendMessage(sender, message, isTyping = false, showAvatar = false) {
     const container = document.createElement("div");
     container.className = "message-container";
+    container.style.alignItems = sender === "You" ? "flex-end" : "flex-start";
 
     const messageRow = document.createElement("div");
     messageRow.style.display = "flex";
     messageRow.style.alignItems = "flex-start";
     messageRow.style.justifyContent = sender === "You" ? "flex-end" : "flex-start";
+    messageRow.style.width = "100%";
 
     const bubble = document.createElement("div");
     bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
@@ -163,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sender === "CareerBot" && !isTyping) {
       const controls = document.createElement("div");
       controls.className = "bot-controls";
-      controls.style.marginLeft = sender === "CareerBot" ? "40px" : "0";
+      controls.style.marginLeft = "40px";
 
       const speakBtn = document.createElement("button");
       speakBtn.textContent = "🔊";
@@ -299,14 +301,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const filename = (currentChat.title || "CareerBot_Chat").replace(/\s+/g, "_") + ".pdf";
     doc.save(filename);
-  });
-
-  // Animate send button
-  const sendButton = form.querySelector("button[type='submit']");
-  sendButton.addEventListener("mouseover", () => {
-    sendButton.style.transform = "scale(1.05)";
-  });
-  sendButton.addEventListener("mouseout", () => {
-    sendButton.style.transform = "scale(1.0)";
   });
 });
