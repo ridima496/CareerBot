@@ -16,35 +16,49 @@ document.addEventListener("DOMContentLoaded", () => {
   let isBotTyping = false;
   let hasUserMessaged = false;
 
-  // Add mic button
+  // 🎤 Mic button
   const micBtn = document.createElement("button");
   micBtn.id = "mic-button";
   micBtn.title = "Speak";
   micBtn.innerHTML = `<img src="mic-icon.png" alt="Mic">`;
   form.querySelector(".input-controls").insertBefore(micBtn, form.querySelector("button[type='submit']"));
 
+  let isRecording = false;
+  let recognition;
+
   micBtn.addEventListener("click", () => {
     if (!('webkitSpeechRecognition' in window)) {
-      alert("Speech recognition not supported");
+      alert("Speech recognition not supported on this device");
       return;
     }
 
-    const recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    if (!isRecording) {
+      recognition = new webkitSpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.interimResults = true;
+      recognition.continuous = true;
 
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      input.value = transcript;
-      input.focus();
-    };
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+        input.value = transcript;
+      };
 
-    recognition.onerror = (e) => {
-      alert("Error: " + e.error);
-    };
+      recognition.onend = () => {
+        isRecording = false;
+        micBtn.innerHTML = `<img src="mic-icon.png" alt="Mic">`;
+      };
 
-    recognition.start();
+      recognition.start();
+      isRecording = true;
+      micBtn.innerHTML = "⏹"; // Stop icon
+
+    } else {
+      recognition.stop();
+      isRecording = false;
+      micBtn.innerHTML = `<img src="mic-icon.png" alt="Mic">`;
+    }
   });
 
   function saveChats() {
@@ -133,6 +147,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.createElement("div");
     container.className = "message-container";
 
+    const messageRow = document.createElement("div");
+    messageRow.style.display = "flex";
+    messageRow.style.alignItems = "flex-start";
+
     const bubble = document.createElement("div");
     bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
 
@@ -149,23 +167,40 @@ document.addEventListener("DOMContentLoaded", () => {
       const avatar = document.createElement("img");
       avatar.src = "logo512.png";
       avatar.className = "avatar";
-      container.appendChild(avatar);
+      messageRow.appendChild(avatar);
     }
 
-    container.appendChild(bubble);
+    messageRow.appendChild(bubble);
+    container.appendChild(messageRow);
 
-    // Add speak + copy buttons on hover
+    // Speak + Copy buttons
     if (sender === "CareerBot" && !isTyping) {
       const controls = document.createElement("div");
       controls.className = "bot-controls";
 
+      let isSpeaking = false;
+      let utterance;
+
       const speakBtn = document.createElement("button");
       speakBtn.textContent = "🔊";
       speakBtn.title = "Speak";
+
       speakBtn.onclick = () => {
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = "en-US";
-        speechSynthesis.speak(utterance);
+        if (isSpeaking) {
+          speechSynthesis.cancel();
+          isSpeaking = false;
+          speakBtn.textContent = "🔊";
+        } else {
+          utterance = new SpeechSynthesisUtterance(message);
+          utterance.lang = "en-US";
+          speechSynthesis.speak(utterance);
+          isSpeaking = true;
+          speakBtn.textContent = "⏹";
+          utterance.onend = () => {
+            isSpeaking = false;
+            speakBtn.textContent = "🔊";
+          };
+        }
       };
 
       const copyBtn = document.createElement("button");
