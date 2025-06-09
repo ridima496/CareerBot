@@ -150,6 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const messageRow = document.createElement("div");
     messageRow.style.display = "flex";
     messageRow.style.alignItems = "flex-start";
+    messageRow.style.justifyContent = sender === "You" ? "flex-end" : "flex-start";
 
     const bubble = document.createElement("div");
     bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
