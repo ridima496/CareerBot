@@ -163,11 +163,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sender === "CareerBot" && !isTyping) {
       const controls = document.createElement("div");
       controls.className = "bot-controls";
+      controls.style.marginLeft = sender === "CareerBot" ? "40px" : "0";
 
       const speakBtn = document.createElement("button");
       speakBtn.textContent = "🔊";
       speakBtn.title = "Speak";
-
       speakBtn.onclick = () => {
         const utterance = new SpeechSynthesisUtterance(message);
         utterance.lang = "en-US";
