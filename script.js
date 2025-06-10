@@ -167,8 +167,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const avatar = document.createElement("img");
       avatar.src = "logo512.png";
       avatar.className = "avatar";
-      avatar.style.marginLeft = "150px";
-      avatar.style.marginRight = "10px"; // Added spacing
+      avatar.style.marginLeft = "120px";
+      avatar.style.marginRight = "6px"; // Added spacing
       messageRow.appendChild(avatar);
     }
 
@@ -181,14 +181,15 @@ document.addEventListener("DOMContentLoaded", () => {
       controls.style.display = "flex";
       controls.style.alignItems = "center";
       controls.style.marginTop = "8px";
-      controls.style.marginLeft = showAvatar ? "42px" : "0"; // Align with avatar if present
-
+      controls.style.marginLeft = "150px";
+      
       let isSpeaking = false;
       let utterance = null;
 
       const speakBtn = document.createElement("button");
       speakBtn.textContent = "🔊";
       speakBtn.title = "Speak";
+      speakBtn.style.marginLeft = "160px";
 
       speakBtn.onclick = () => {
         if (isSpeaking) {
