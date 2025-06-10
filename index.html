@@ -70,20 +70,51 @@
       display: flex;
       flex-direction: column;
       background-color: transparent;
-      padding-top: 80px; 
     }
 
-    .top-right-buttons {
+    /* New header styles */
+    .chat-header-container {
       position: fixed;
       top: 0;
+      left: 240px;
       right: 0;
+      height: 80px;
+      background-color: #f9fafb;
       display: flex;
-      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
       padding: 20px 24px;
       z-index: 100;
+      border-bottom: 1px solid #e5e7eb;
     }
 
-    .top-right-buttons button {
+    .dark-mode .chat-header-container {
+      background-color: #1f2937;
+      border-bottom-color: #374151;
+    }
+
+    .chat-header-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: #000000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transform: translateY(-10px);
+      opacity: 0;
+      animation: titleFadeIn 0.4s ease forwards;
+    }
+
+    .dark-mode .chat-header-title {
+      color: #ffffff;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .header-buttons button {
       background: white;
       border: none;
       border-radius: 50%;
@@ -97,36 +128,18 @@
       justify-content: center;
     }
 
-    .top-right-buttons img {
+    .header-buttons img {
       width: 22px;
       height: 22px;
       filter: invert(0);
     }
 
-    .dark-mode .top-right-buttons img {
+    .dark-mode .header-buttons img {
       filter: invert(1);
     }
 
-    .dark-mode .top-right-buttons button {
+    .dark-mode .header-buttons button {
       background-color: #15191f;
-    }
-
-    .chat-header {
-      position: fixed;
-      top: 0;
-      left: 240px;
-      right: 180px;
-      padding: 20px 24px;
-      z-index: 100;
-      font-size: 24px;
-      font-weight: 500;
-      color: #000000;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      transform: translateY(-10px);
-      opacity: 0;
-      animation: titleFadeIn 0.4s ease forwards;
     }
 
     @keyframes titleFadeIn {
@@ -136,10 +149,6 @@
       }
     }
     
-    .dark-mode .chat-header {
-      color: #ffffff;
-    }
-
     .header-buttons button, #new-chat {
       background: white;
       border: none;
@@ -164,6 +173,7 @@
       overflow-y: auto;
       background: radial-gradient(circle, #ffffff, #f3f4f6);
       position: relative;
+      margin-top: 80px;
     }
 
     .centered-intro {
@@ -405,16 +415,17 @@
 
     <!-- Chat Area -->
     <div class="chat-area">
-
-      <div class="chat-header" id="chat-header">New Chat</div>
-
-      <div class="top-right-buttons">
-        <button id="export-pdf" title="Download PDF">
-          <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export">
-        </button>
-        <button id="dark-toggle" title="Toggle Dark Mode">
-          <img src="https://cdn-icons-png.flaticon.com/512/6714/6714978.png" alt="Dark Mode">
-        </button>
+      <!-- New Header Section -->
+      <div class="chat-header-container">
+        <div class="chat-header-title" id="chat-header">New Chat</div>
+        <div class="header-buttons">
+          <button id="export-pdf" title="Download PDF">
+            <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export">
+          </button>
+          <button id="dark-toggle" title="Toggle Dark Mode">
+            <img src="https://cdn-icons-png.flaticon.com/512/6714/6714978.png" alt="Dark Mode">
+          </button>
+        </div>
       </div>
 
       <!-- Chat Window -->
