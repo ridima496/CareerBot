@@ -110,8 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (sender === "CareerBot") {
       container.style.marginLeft = "150px";
-      container.style.marginRight = "auto";
-      container.style.maxWidth = "calc(70% - 150px)";
     }
 
     const messageRow = document.createElement("div");
