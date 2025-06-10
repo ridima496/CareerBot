@@ -100,10 +100,44 @@
     .top-right-buttons img {
       width: 22px;
       height: 22px;
+      filter: invert(0);
+    }
+
+    .dark-mode .top-right-buttons img {
+      filter: invert(1);
     }
 
     .dark-mode .top-right-buttons button {
-      background-color: #717285;
+      background-color: #15191f;
+    }
+
+    .chat-header {
+      position: fixed;
+      top: 0;
+      left: 240px;
+      right: 180px;
+      padding: 20px 24px;
+      z-index: 100;
+      font-size: 18px;
+      font-weight: 500;
+      color: #000000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transform: translateY(-10px);
+      opacity: 0;
+      animation: titleFadeIn 0.4s ease forwards;
+    }
+
+    @keyframes titleFadeIn {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .dark-mode .chat-header {
+      color: #ffffff;
     }
 
     .header-buttons button, #new-chat {
@@ -231,8 +265,9 @@
     .bot-controls {
       display: none;
       margin-top: 4px;
-      gap: 6px;
-      padding-left: 10px;
+      gap: 8px;
+      padding-left: 0;
+      margin-left: 40px;
     }
 
     .message-container:hover .bot-controls {
@@ -245,7 +280,6 @@
       cursor: pointer;
       font-size: 16px;
       padding: 2px;
-      margin-left: 190px;
       color: #444;
     }
 
@@ -371,6 +405,8 @@
 
     <!-- Chat Area -->
     <div class="chat-area">
+
+      <div class="chat-header" id="chat-header">New Chat</div>
 
       <div class="top-right-buttons">
         <button id="export-pdf" title="Download PDF">
