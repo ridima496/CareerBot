@@ -106,7 +106,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.createElement("div");
     container.className = "message-container";
     container.style.alignItems = sender === "You" ? "flex-end" : "flex-start";
-    container.style.marginBottom = "15px"; // Added breathing space
+    container.style.marginBottom = "15px";
+
+    if (sender === "CareerBot") {
+      container.style.marginLeft = "150px";
+      container.style.marginRight = "auto";
+      container.style.maxWidth = "calc(70% - 150px)";
+    }
 
     const messageRow = document.createElement("div");
     messageRow.style.display = "flex";
