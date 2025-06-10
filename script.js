@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatList = document.getElementById("chat-list");
   const introScreen = document.getElementById("intro-screen");
   const exportBtn = document.getElementById("export-pdf");
+  const chatHeader = document.getElementById("chat-header"); // Added reference to header
 
   const BACKEND_URL = "https://careerbot-backend-i1qt.onrender.com/get_response";
 
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderChatList();
   }
 
-  function createChat(title = "Untitled Chat") {
+  function createChat(title = "New Chat") { // Changed default title to "New Chat"
     const id = Date.now().toString();
     return { id, title, messages: [], timestamp: Date.now() };
   }
@@ -61,6 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (newTitle) {
           chat.title = newTitle;
           saveChats();
+          // Update header if this is the active chat
+          if (currentChat?.id === chat.id) {
+            chatHeader.textContent = chat.title;
+          }
         }
       };
 
@@ -89,6 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
         hasUserMessaged = true;
         document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
         div.classList.add('active');
+        // Update header with chat title
+        chatHeader.textContent = chat.title;
       };
 
       chatList.appendChild(div);
@@ -99,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.createElement("div");
     container.className = "message-container";
     container.style.alignItems = sender === "You" ? "flex-end" : "flex-start";
+    container.style.marginBottom = "15px"; // Added breathing space
 
     const messageRow = document.createElement("div");
     messageRow.style.display = "flex";
@@ -159,6 +167,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const avatar = document.createElement("img");
       avatar.src = "logo512.png";
       avatar.className = "avatar";
+      avatar.style.marginLeft = "0"; // Reset margin
+      avatar.style.marginRight = "10px"; // Added spacing
       messageRow.appendChild(avatar);
     }
 
@@ -168,7 +178,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sender === "CareerBot" && !isTyping) {
       const controls = document.createElement("div");
       controls.className = "bot-controls";
-      controls.style.marginLeft = "40px";
+      controls.style.display = "flex";
+      controls.style.alignItems = "center";
+      controls.style.marginTop = "8px";
+      controls.style.marginLeft = showAvatar ? "42px" : "0"; // Align with avatar if present
 
       let isSpeaking = false;
       let utterance = null;
@@ -220,6 +233,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentChat) {
       currentChat = createChat();
       chats.unshift(currentChat);
+      // Update header for new chat
+      chatHeader.textContent = currentChat.title;
     }
 
     if (!hasUserMessaged) {
@@ -252,11 +267,13 @@ document.addEventListener("DOMContentLoaded", () => {
         currentChat.messages.push({ sender: "CareerBot", text: data.response });
         currentChat.timestamp = Date.now();
 
-        if (currentChat.title === "Untitled Chat") {
+        // Update chat title and header if needed
+        if (currentChat.title === "New Chat") {
           currentChat.title = getTitleFromMessage(userMessage);
+          chatHeader.textContent = currentChat.title;
+          saveChats();
         }
 
-        saveChats();
         isBotTyping = false;
         input.disabled = false;
         input.focus();
@@ -292,6 +309,8 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.innerHTML = "";
     introScreen.style.display = "flex";
     hasUserMessaged = false;
+    // Reset header to "New Chat"
+    chatHeader.textContent = "New Chat";
   }
 
   renderChatList();
