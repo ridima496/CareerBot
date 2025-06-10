@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.style.marginBottom = "15px";
 
     if (sender === "CareerBot") {
-      container.style.marginLeft = "50px";
+      container.style.marginLeft = "150px";
       container.style.marginRight = "auto";
       container.style.maxWidth = "calc(70% - 150px)";
     }
@@ -125,8 +125,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (isTyping) {
       const warmUpText = currentChat?.messages?.length === 0 ? 
-        `<span class="typing-indicator" style="margin-left: 150px">Warming up the bot, please wait<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>` :
-        `<span class="typing-indicator" style="margin-left: 150px">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
+        `<span class="typing-indicator">Warming up the bot, please wait<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>` :
+        `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
       bubble.innerHTML = warmUpText;
     } else {
       function convertMarkdownToHTMLTable(text) {
@@ -187,7 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
       controls.style.display = "flex";
       controls.style.alignItems = "center";
       controls.style.marginTop = "8px";
-      controls.style.marginLeft = "150px";
       
       let isSpeaking = false;
       let utterance = null;
