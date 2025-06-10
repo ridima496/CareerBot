@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatList = document.getElementById("chat-list");
   const introScreen = document.getElementById("intro-screen");
   const exportBtn = document.getElementById("export-pdf");
-  const chatHeader = document.getElementById("chat-header"); // Added reference to header
+  const chatHeader = document.getElementById("chat-header");
 
   const BACKEND_URL = "https://careerbot-backend-i1qt.onrender.com/get_response";
 
