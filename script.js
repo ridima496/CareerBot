@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     container.style.marginBottom = "15px";
 
     if (sender === "CareerBot") {
-      container.style.marginLeft = "150px";
+      container.style.marginLeft = "50px";
       container.style.marginRight = "auto";
       container.style.maxWidth = "calc(70% - 150px)";
     }
