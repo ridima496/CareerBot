@@ -267,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       setTimeout(() => {
-        typingBubble.remove();
+        typingBubble?.remove();
         appendMessage("CareerBot", data.response, false, true);
         currentChat.messages.push({ sender: "CareerBot", text: data.response });
         currentChat.timestamp = Date.now();
@@ -276,9 +276,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (currentChat.title === "New Chat") {
           currentChat.title = getTitleFromMessage(userMessage);
           chatHeader.textContent = currentChat.title;
-          saveChats();
         }
 
+        saveChats(); // Add this line to persist changes
+        renderChatList(); // Add this line to update sidebar sorting
+        
         isBotTyping = false;
         input.disabled = false;
         input.focus();
