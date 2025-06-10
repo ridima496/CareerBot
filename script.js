@@ -195,7 +195,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const speakBtn = document.createElement("button");
       speakBtn.textContent = "🔊";
       speakBtn.title = "Speak";
-      speakBtn.style.marginLeft = "160px";
 
       speakBtn.onclick = () => {
         if (isSpeaking) {
