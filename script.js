@@ -173,7 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const avatar = document.createElement("img");
       avatar.src = "logo512.png";
       avatar.className = "avatar";
-      avatar.style.marginLeft = "120px";
       avatar.style.marginRight = "6px"; // Added spacing
       messageRow.appendChild(avatar);
     }
