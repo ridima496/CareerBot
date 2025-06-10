@@ -119,8 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (isTyping) {
       const warmUpText = currentChat?.messages?.length === 0 ? 
-        `<span class="typing-indicator">Warming up the bot, please wait<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>` :
-        `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
+        `<span class="typing-indicator" style="margin-left: 150px">Warming up the bot, please wait<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>` :
+        `<span class="typing-indicator" style="margin-left: 150px">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
       bubble.innerHTML = warmUpText;
     } else {
       function convertMarkdownToHTMLTable(text) {
