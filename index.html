@@ -70,32 +70,7 @@
       display: flex;
       flex-direction: column;
       background-color: transparent;
-    }
-
-    .top-right-buttons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      padding: 20px 24px 0 0;
-    }
-
-    .top-right-buttons button {
-      background: white;
-      border: none;
-      border-radius: 50%;
-      width: 42px;
-      height: 42px;
-      padding: 8px;
-      cursor: pointer;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .top-right-buttons img {
-      width: 22px;
-      height: 22px;
+      padding-top: 0;
     }
 
     .header-buttons button, #new-chat {
@@ -118,7 +93,7 @@
 
     .chat-window {
       flex: 1;
-      padding: 16px;
+      padding-top: 16px;
       overflow-y: auto;
       background: radial-gradient(circle, #ffffff, #f3f4f6);
       position: relative;
@@ -363,16 +338,6 @@
 
     <!-- Chat Area -->
     <div class="chat-area">
-
-      <!-- Top Right Buttons -->
-      <div class="top-right-buttons">
-        <button id="export-pdf" title="Download PDF">
-          <img src="https://static-00.iconduck.com/assets.00/share-icon-2048x1911-60w04qpe.png" alt="Export">
-        </button>
-        <button id="dark-toggle" title="Toggle Dark Mode">
-          <img src="https://cdn-icons-png.flaticon.com/512/6714/6714978.png" alt="Dark Mode">
-        </button>
-      </div>
 
       <!-- Chat Window -->
       <div class="chat-window" id="chat-box">
