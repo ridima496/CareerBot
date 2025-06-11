@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentChat = null;
   let isBotTyping = false;
   let hasUserMessaged = false;
+  let activeTool = null;
+  let linkedinEnhancerState = null;
 
   function saveChats() {
     localStorage.setItem("careerbot_chats", JSON.stringify(chats));
@@ -25,6 +27,116 @@ document.addEventListener("DOMContentLoaded", () => {
   function createChat(title = "New Chat") { // Changed default title to "New Chat"
     const id = Date.now().toString();
     return { id, title, messages: [], timestamp: Date.now() };
+  }
+
+  function handleLinkedInEnhancer(choice = null) {
+    if (choice) {
+      switch (choice) {
+        case 'headline':
+          appendMessage("You", "Improve my headline. Here is my exact headline: <Please paste your headline here>", false, false);
+          linkedinEnhancerState = 'awaiting_headline';
+          break;
+        case 'about':
+          appendMessage("You", "Improve my about section. Here is my exact about section: <Please paste your about section here>", false, false);
+          linkedinEnhancerState = 'awaiting_about';
+          break;
+        case 'experience':
+          appendMessage("You", "Improve my experience section. Here is my exact experience section: <Please paste your experience section here>", false, false);
+          linkedinEnhancerState = 'awaiting_experience';
+          break;
+        case 'skills':
+          appendMessage("You", "Optimize my skills section. Here are my exact skills: <Please paste your skills here>", false, false);
+          linkedinEnhancerState = 'awaiting_skills';
+          break;
+        case 'feedback':
+          appendMessage("You", "Give me overall profile feedback. Here is my LinkedIn profile summary: <Please paste your profile summary here>", false, false);
+          linkedinEnhancerState = 'awaiting_feedback';
+          break;
+        case 'restart':
+          linkedinEnhancerState = 'initial';
+          showLinkedInEnhancerOptions();
+          break;
+        case 'quit':
+          activeTool = null;
+          linkedinEnhancerState = null;
+          enableAllTools();
+          break;
+      }
+    } else {
+      showLinkedInEnhancerOptions();
+    }
+  }
+
+  function showLinkedInEnhancerOptions() {
+    const options = [
+      { id: 'headline', text: 'Headline Optimization' },
+      { id: 'about', text: 'About Section Rewriting' },
+      { id: 'experience', text: 'Experience Section Enhancement' },
+      { id: 'skills', text: 'Skills Optimization' },
+      { id: 'feedback', text: 'Overall Profile Feedback' }
+    ];
+
+    const container = document.createElement("div");
+    container.className = "message-container";
+    container.style.alignItems = "flex-start";
+    container.style.marginBottom = "15px";
+    container.style.marginLeft = "150px";
+
+    const messageRow = document.createElement("div");
+    messageRow.style.display = "flex";
+    messageRow.style.alignItems = "flex-start";
+    messageRow.style.justifyContent = "flex-start";
+    messageRow.style.width = "100%";
+
+    const bubble = document.createElement("div");
+    bubble.className = "message bot";
+    bubble.style.backgroundColor = "#f3f4f6";
+    bubble.style.color = "#111827";
+    bubble.style.padding = "10px";
+    bubble.style.borderRadius = "8px";
+    bubble.style.maxWidth = "70%";
+
+    const text = document.createElement("p");
+    text.textContent = "What would you like to enhance in your LinkedIn profile?";
+    bubble.appendChild(text);
+
+    const buttonsContainer = document.createElement("div");
+    buttonsContainer.style.display = "flex";
+    buttonsContainer.style.flexDirection = "column";
+    buttonsContainer.style.gap = "8px";
+    buttonsContainer.style.marginTop = "12px";
+
+    options.forEach(option => {
+      const button = document.createElement("button");
+      button.textContent = option.text;
+      button.className = "enhancer-option";
+      button.style.padding = "8px 12px";
+      button.style.border = "1px solid #d1d5db";
+      button.style.borderRadius = "4px";
+      button.style.backgroundColor = "#ffffff";
+      button.style.cursor = "pointer";
+      button.style.textAlign = "left";
+      button.onclick = () => handleLinkedInEnhancer(option.id);
+      buttonsContainer.appendChild(button);
+    });
+
+    bubble.appendChild(buttonsContainer);
+    messageRow.appendChild(bubble);
+    container.appendChild(messageRow);
+    chatBox.appendChild(container);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function disableAllTools() {
+    document.querySelectorAll('.top-button').forEach(button => {
+      button.disabled = true;
+    });
+  }
+
+  function enableAllTools() {
+    document.querySelectorAll('.top-button').forEach(button => {
+      button.disabled = false;
+    });
   }
 
   function getTitleFromMessage(msg) {
@@ -236,7 +348,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentChat) {
       currentChat = createChat();
       chats.unshift(currentChat);
-      // Update header for new chat
       chatHeader.textContent = currentChat.title;
     }
 
@@ -253,32 +364,83 @@ document.addEventListener("DOMContentLoaded", () => {
     input.disabled = true;
 
     try {
-      const response = await fetch(BACKEND_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userMessage,
-          history: currentChat.messages.slice(-5)
-        })
-      });
-
-      const data = await response.json();
+      let response;
+    
+      if (activeTool === 'linkedin') {
+        if (linkedinEnhancerState && linkedinEnhancerState.startsWith('awaiting_')) {
+          // Handle LinkedIn Enhancer specific responses
+          if (userMessage.includes("<Please paste")) {
+            response = { response: "Please edit the message with your actual information and send it again." };
+          } else {
+            let nextQuestion = "";
+            let nextState = "";
+          
+            switch (linkedinEnhancerState) {
+              case 'awaiting_headline':
+                nextQuestion = "Great! Now, please mention your desired career or job title:";
+                nextState = 'awaiting_career_for_headline';
+                break;
+              case 'awaiting_about':
+                nextQuestion = "Great! What specific tone would you like for your about section? (e.g., professional, creative, technical)";
+                nextState = 'awaiting_tone_for_about';
+                break;
+              case 'awaiting_experience':
+                nextQuestion = "Great! What aspects of your experience would you like to highlight? (e.g., achievements, responsibilities, skills)";
+                nextState = 'awaiting_highlight_for_experience';
+                break;
+              case 'awaiting_skills':
+                nextQuestion = "Great! What specific job or industry are you targeting with these skills?";
+                nextState = 'awaiting_target_for_skills';
+                break;
+              case 'awaiting_feedback':
+                nextQuestion = "Great! What specific aspects would you like feedback on? (e.g., completeness, professionalism, keyword optimization)";
+                nextState = 'awaiting_focus_for_feedback';
+                break;
+            }
+          
+            response = { response: nextQuestion };
+            linkedinEnhancerState = nextState;
+          }
+        } else if (linkedinEnhancerState && linkedinEnhancerState.startsWith('awaiting_')) {
+          // Generate the enhanced content based on user input
+          let enhancedContent = `Here's your enhanced LinkedIn ${linkedinEnhancerState.split('_').pop().replace('for_', '')}:\n\n`;
+          enhancedContent += `[Generated content based on: ${userMessage}]`;
+        
+          // Add action buttons
+          enhancedContent += "\n\n<div class='enhancer-actions'>";
+          enhancedContent += "<button class='enhancer-action' onclick='handleLinkedInEnhancer(\"restart\")'>Jump to another part</button>";
+          enhancedContent += "<button class='enhancer-action' onclick='handleLinkedInEnhancer(\"quit\")'>Quit LinkedIn Enhancer</button>";
+          enhancedContent += "</div>";
+        
+          response = { response: enhancedContent };
+          linkedinEnhancerState = null;
+        }
+      } else {
+        // Regular response handling
+        response = await fetch(BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: userMessage,
+            history: currentChat.messages.slice(-5)
+          })
+        }).then(res => res.json());
+      }
 
       setTimeout(() => {
         typingBubble?.remove();
-        appendMessage("CareerBot", data.response, false, true);
-        currentChat.messages.push({ sender: "CareerBot", text: data.response });
+        appendMessage("CareerBot", response.response, false, true);
+        currentChat.messages.push({ sender: "CareerBot", text: response.response });
         currentChat.timestamp = Date.now();
 
-        // Update chat title and header if needed
         if (currentChat.title === "New Chat") {
           currentChat.title = getTitleFromMessage(userMessage);
           chatHeader.textContent = currentChat.title;
         }
 
-        saveChats(); // Add this line to persist changes
-        renderChatList(); // Add this line to update sidebar sorting
-        
+        saveChats();
+        renderChatList();
+      
         isBotTyping = false;
         input.disabled = false;
         input.focus();
@@ -291,6 +453,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  document.querySelectorAll('#linkedin-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      if (activeTool === 'linkedin') return;
+    
+      activeTool = 'linkedin';
+      linkedinEnhancerState = 'initial';
+      disableAllTools();
+    
+      if (!currentChat) {
+        currentChat = createChat("LinkedIn Profile Enhancement");
+        chats.unshift(currentChat);
+        chatHeader.textContent = currentChat.title;
+      }
+    
+      if (!hasUserMessaged) {
+        introScreen.style.display = "none";
+        hasUserMessaged = true;
+      }
+    
+      sendMessage("Help me enhance my LinkedIn profile.");
+    });
+  });
+  
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const msg = input.value.trim();
