@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (txt.includes("linkedin")) return "LinkedIn Profile Help";
     if (txt.includes("career") || txt.includes("future")) return "Career Guidance";
     if (txt.includes("skills") || txt.includes("map")) return "Skill Mapping";
+    if (txt.includes("interview")) return "Interview Preparation";
     return "Conversation";
   }
 
