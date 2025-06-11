@@ -49,8 +49,10 @@ document.addEventListener("DOMContentLoaded", () => {
           linkedinEnhancerState = 'awaiting_skills';
           break;
         case 'feedback':
-          appendMessage("You", "Give me overall profile feedback. Here is my LinkedIn profile summary: <Please paste your profile summary here>", false, false);
-          linkedinEnhancerState = 'awaiting_feedback';
+          linkedinEnhancerState = 'feedback_flow';
+          currentChat.linkedinFeedbackData = {};
+          showFeedbackProgress(0);
+          appendMessage("CareerBot", "Let's analyze your entire LinkedIn profile. First, please share your current headline:", false, true);
           break;
         case 'restart':
           linkedinEnhancerState = 'initial';
@@ -65,6 +67,64 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       showLinkedInEnhancerOptions();
     }
+  }
+
+  function showFeedbackProgress(step) {
+    const steps = [
+      "Headline",
+      "About Section",
+      "Experience",
+      "Skills",
+      "Desired Job"
+    ];
+    
+    const progressHTML = `
+      <div class="feedback-progress">
+        <div class="progress-title">Profile Analysis Progress</div>
+        <div class="progress-steps">
+          ${steps.map((s, i) => `
+            <div class="progress-step ${i < step ? 'completed' : ''} ${i === step ? 'active' : ''}">
+              <div class="step-number">${i + 1}</div>
+              <div class="step-label">${s}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${(step / steps.length) * 100}%"></div>
+        </div>
+      </div>
+    `;
+    
+    // Remove any existing progress indicator
+    document.querySelectorAll('.feedback-progress').forEach(el => el.remove());
+    
+    // Add to the last bot message
+    const lastBotMessage = document.querySelectorAll('.message.bot').pop();
+    if (lastBotMessage) {
+      const progressContainer = document.createElement('div');
+      progressContainer.innerHTML = progressHTML;
+      lastBotMessage.appendChild(progressContainer);
+    }
+  }
+
+  // Add this new function for visualization
+  function addProfileVisualization(scores) {
+    return `
+      <div class="profile-visualization">
+        <div class="viz-title">Profile Analysis</div>
+        <div class="viz-meters">
+          ${Object.entries(scores).map(([section, score]) => `
+            <div class="viz-meter">
+              <div class="viz-label">${section}</div>
+              <div class="meter-container">
+                <div class="meter-fill" style="width: ${score}%"></div>
+                <div class="meter-text">${score}/100</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
   }
 
   function showLinkedInEnhancerOptions() {
@@ -365,56 +425,82 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       let response;
-    
+      
       if (activeTool === 'linkedin') {
-        if (linkedinEnhancerState && linkedinEnhancerState.startsWith('awaiting_')) {
-          // Handle LinkedIn Enhancer specific responses
-          if (userMessage.includes("<Please paste")) {
-            response = { response: "Please edit the message with your actual information and send it again." };
-          } else {
-            let nextQuestion = "";
-            let nextState = "";
-          
-            switch (linkedinEnhancerState) {
-              case 'awaiting_headline':
-                nextQuestion = "Great! Now, please mention your desired career or job title:";
-                nextState = 'awaiting_career_for_headline';
-                break;
-              case 'awaiting_about':
-                nextQuestion = "Great! What specific tone would you like for your about section? (e.g., professional, creative, technical)";
-                nextState = 'awaiting_tone_for_about';
-                break;
-              case 'awaiting_experience':
-                nextQuestion = "Great! What aspects of your experience would you like to highlight? (e.g., achievements, responsibilities, skills)";
-                nextState = 'awaiting_highlight_for_experience';
-                break;
-              case 'awaiting_skills':
-                nextQuestion = "Great! What specific job or industry are you targeting with these skills?";
-                nextState = 'awaiting_target_for_skills';
-                break;
-              case 'awaiting_feedback':
-                nextQuestion = "Great! What specific aspects would you like feedback on? (e.g., completeness, professionalism, keyword optimization)";
-                nextState = 'awaiting_focus_for_feedback';
-                break;
-            }
-          
-            response = { response: nextQuestion };
-            linkedinEnhancerState = nextState;
+        if (linkedinEnhancerState === 'feedback_flow') {
+          if (!currentChat.linkedinFeedbackData) {
+            currentChat.linkedinFeedbackData = {};
           }
-        } else if (linkedinEnhancerState && linkedinEnhancerState.startsWith('awaiting_')) {
-          // Generate the enhanced content based on user input
-          let enhancedContent = `Here's your enhanced LinkedIn ${linkedinEnhancerState.split('_').pop().replace('for_', '')}:\n\n`;
-          enhancedContent += `[Generated content based on: ${userMessage}]`;
+          
+          const lastBotMessage = currentChat.messages
+            .filter(m => m.sender === "CareerBot")
+            .pop()?.text || "";
+
+          let currentStep = 0;
+          if (lastBotMessage.includes("share your current headline")) {
+            currentChat.linkedinFeedbackData.headline = userMessage;
+            response = { response: "Great! Now please share your About section:" };
+            currentStep = 1;
+          } 
+          else if (lastBotMessage.includes("share your About section")) {
+            currentChat.linkedinFeedbackData.about = userMessage;
+            response = { response: "Thank you. Next, please share your Experience section:" };
+            currentStep = 2;
+          }
+          else if (lastBotMessage.includes("share your Experience section")) {
+            currentChat.linkedinFeedbackData.experience = userMessage;
+            response = { response: "Got it. Now please share your Skills:" };
+            currentStep = 3;
+          }
+          else if (lastBotMessage.includes("share your Skills")) {
+            currentChat.linkedinFeedbackData.skills = userMessage;
+            response = { response: "Finally, what is your desired career/job title?" };
+            currentStep = 4;
+          }
+          else if (lastBotMessage.includes("desired career/job title")) {
+            currentChat.linkedinFeedbackData.desiredJob = userMessage;
+            
+            const feedbackData = {
+              type: "comprehensive_feedback",
+              data: currentChat.linkedinFeedbackData
+            };
+            
+            response = await fetch(BACKEND_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                message: JSON.stringify(feedbackData),
+                history: currentChat.messages.slice(-5)
+              })
+            }).then(res => res.json());
+            
+            // Add visualization (mock scores - backend should provide real ones)
+            const visualization = addProfileVisualization({
+              "Headline": 75,
+              "About": 60,
+              "Experience": 80,
+              "Skills": 70,
+              "Overall": 72
+            });
+            
+            response.response = visualization + response.response;
+            
+            response.response += `
+              <div class="enhancer-actions" style="margin-top: 20px;">
+                <button class="enhancer-action" onclick="handleLinkedInEnhancer('restart')">Analyze Another Section</button>
+                <button class="enhancer-action" onclick="handleLinkedInEnhancer('quit')">Finish LinkedIn Enhancement</button>
+              </div>
+            `;
+            
+            currentChat.linkedinFeedbackData = null;
+            linkedinEnhancerState = null;
+          }
+          
+          if (currentStep > 0) {
+            showFeedbackProgress(currentStep);
+          }
+        } 
         
-          // Add action buttons
-          enhancedContent += "\n\n<div class='enhancer-actions'>";
-          enhancedContent += "<button class='enhancer-action' onclick='handleLinkedInEnhancer(\"restart\")'>Jump to another part</button>";
-          enhancedContent += "<button class='enhancer-action' onclick='handleLinkedInEnhancer(\"quit\")'>Quit LinkedIn Enhancer</button>";
-          enhancedContent += "</div>";
-        
-          response = { response: enhancedContent };
-          linkedinEnhancerState = null;
-        }
       } else {
         // Regular response handling
         response = await fetch(BACKEND_URL, {
@@ -429,8 +515,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setTimeout(() => {
         typingBubble?.remove();
-        appendMessage("CareerBot", response.response, false, true);
-        currentChat.messages.push({ sender: "CareerBot", text: response.response });
+        if (response && response.response) {
+          const botMessage = appendMessage("CareerBot", response.response, false, true);
+          currentChat.messages.push({ sender: "CareerBot", text: response.response });
+          
+          if (response.response.includes('<div') || response.response.includes('<button')) {
+            botMessage.innerHTML = response.response;
+          }
+        }
+        
         currentChat.timestamp = Date.now();
 
         if (currentChat.title === "New Chat") {
@@ -440,7 +533,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         saveChats();
         renderChatList();
-      
+        
         isBotTyping = false;
         input.disabled = false;
         input.focus();
@@ -453,6 +546,177 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  const style = document.createElement('style');
+  style.textContent = `
+    .feedback-progress {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      border: 1px solid #e2e8f0;
+    }
+    .dark-mode .feedback-progress {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    .progress-title {
+      font-weight: 500;
+      margin-bottom: 12px;
+      color: #334155;
+    }
+    .dark-mode .progress-title {
+      color: #f1f5f9;
+    }
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      flex: 1;
+    }
+    .progress-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 16px;
+      left: 60%;
+      right: -40%;
+      height: 2px;
+      background: #e2e8f0;
+      z-index: 1;
+    }
+    .dark-mode .progress-step:not(:last-child)::after {
+      background: #334155;
+    }
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e2e8f0;
+      color: #64748b;
+      font-weight: 500;
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 2;
+    }
+    .dark-mode .step-number {
+      background: #334155;
+      color: #94a3b8;
+    }
+    .progress-step.completed .step-number {
+      background: #2563eb;
+      color: white;
+    }
+    .progress-step.active .step-number {
+      background: #3b82f6;
+      color: white;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+    .step-label {
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+    }
+    .dark-mode .step-label {
+      color: #94a3b8;
+    }
+    .progress-step.completed .step-label,
+    .progress-step.active .step-label {
+      color: #2563eb;
+      font-weight: 500;
+    }
+    .dark-mode .progress-step.completed .step-label,
+    .dark-mode .progress-step.active .step-label {
+      color: #3b82f6;
+    }
+    .progress-bar {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .dark-mode .progress-bar {
+      background: #334155;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #2563eb;
+      transition: width 0.3s ease;
+    }
+    .profile-visualization {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      border: 1px solid #e2e8f0;
+    }
+    .dark-mode .profile-visualization {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    .viz-title {
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: #334155;
+      font-size: 16px;
+    }
+    .dark-mode .viz-title {
+      color: #f1f5f9;
+    }
+    .viz-meters {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .viz-meter {
+      display: flex;
+      align-items: center;
+    }
+    .viz-label {
+      width: 120px;
+      font-size: 14px;
+      color: #475569;
+    }
+    .dark-mode .viz-label {
+      color: #94a3b8;
+    }
+    .meter-container {
+      flex: 1;
+      height: 24px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .dark-mode .meter-container {
+      background: #334155;
+    }
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #6366f1);
+      border-radius: 12px;
+      transition: width 0.5s ease;
+    }
+    .meter-text {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      font-weight: 500;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+  `;
+  document.head.appendChild(style);
+  
   document.querySelectorAll('#linkedin-btn').forEach(button => {
     button.addEventListener('click', () => {
       if (activeTool === 'linkedin') return;
