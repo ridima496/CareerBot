@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderChatList();
   }
 
-  function createChat(title = "New Chat") { // Changed default title to "New Chat"
+  function createChat(title = "New Chat") {
     const id = Date.now().toString();
     return { id, title, messages: [], timestamp: Date.now() };
   }
@@ -70,13 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showFeedbackProgress(step) {
-    const steps = [
-      "Headline",
-      "About Section",
-      "Experience",
-      "Skills",
-      "Desired Job"
-    ];
+    const steps = ["Headline", "About Section", "Experience", "Skills", "Desired Job"];
     
     const progressHTML = `
       <div class="feedback-progress">
@@ -95,10 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
     
-    // Remove any existing progress indicator
     document.querySelectorAll('.feedback-progress').forEach(el => el.remove());
-    
-    // Add to the last bot message
     const lastBotMessage = document.querySelectorAll('.message.bot').pop();
     if (lastBotMessage) {
       const progressContainer = document.createElement('div');
@@ -107,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Add this new function for visualization
   function addProfileVisualization(scores) {
     return `
       <div class="profile-visualization">
@@ -235,7 +225,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (newTitle) {
           chat.title = newTitle;
           saveChats();
-          // Update header if this is the active chat
           if (currentChat?.id === chat.id) {
             chatHeader.textContent = chat.title;
           }
@@ -267,7 +256,6 @@ document.addEventListener("DOMContentLoaded", () => {
         hasUserMessaged = true;
         document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
         div.classList.add('active');
-        // Update header with chat title
         chatHeader.textContent = chat.title;
       };
 
@@ -300,43 +288,10 @@ document.addEventListener("DOMContentLoaded", () => {
         `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
       bubble.innerHTML = warmUpText;
     } else {
-      function convertMarkdownToHTMLTable(text) {
-        const lines = text.trim().split("\n");
-        const tableStart = lines.findIndex(line => /^\|.*\|$/.test(line) && lines[lines.indexOf(line)+1]?.includes("---"));
-        if (tableStart === -1) return null;
-
-        const headerLine = lines[tableStart];
-        const dataLines = lines.slice(tableStart + 2);
-
-        const headers = headerLine.split("|").map(h => h.trim()).filter(Boolean);
-        const rows = dataLines.map(line =>
-          line.split("|").map(cell => cell.trim()).filter(Boolean)
-        );
-
-        let tableHTML = `<div class="table-wrapper"><table class="bot-table"><thead><tr>`;
-        headers.forEach(h => tableHTML += `<th>${h}</th>`);
-        tableHTML += `</tr></thead><tbody>`;
-        rows.forEach(row => {
-          tableHTML += `<tr>` + row.map(cell => `<td>${cell}</td>`).join("") + `</tr>`;
-        });
-        tableHTML += `</tbody></table></div>`;
-
-        return {
-          before: lines.slice(0, tableStart).join("<br>"),
-          table: tableHTML,
-          after: lines.slice(tableStart + 2 + rows.length).join("<br>")
-        };
-      }
-
-      const markdownTable = convertMarkdownToHTMLTable(message);
-      if (markdownTable) {
-        bubble.innerHTML = `${markdownTable.before}<br>${markdownTable.table}<br>${markdownTable.after}`;
+      if (sender === "CareerBot" && (message.includes('<') || message.includes('\n'))) {
+        bubble.innerHTML = message.includes('<') ? message : message.replace(/\n/g, '<br>');
       } else {
-        const rendered = message
-          .replace(/\n/g, "<br>")
-          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-          .replace(/\*(.*?)\*/g, "<em>$1</em>");
-        bubble.innerHTML = rendered;
+        bubble.textContent = message;
       }
     }
 
@@ -344,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const avatar = document.createElement("img");
       avatar.src = "logo512.png";
       avatar.className = "avatar";
-      avatar.style.marginRight = "6px"; // Added spacing
+      avatar.style.marginRight = "6px";
       messageRow.appendChild(avatar);
     }
 
@@ -364,21 +319,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const speakBtn = document.createElement("button");
       speakBtn.textContent = "🔊";
       speakBtn.title = "Speak";
-
       speakBtn.onclick = () => {
         if (isSpeaking) {
           speechSynthesis.cancel();
           speakBtn.textContent = "🔊";
           isSpeaking = false;
         } else {
-          utterance = new SpeechSynthesisUtterance(message);
+          utterance = new SpeechSynthesisUtterance(message.replace(/<[^>]*>/g, ''));
           utterance.lang = "en-US";
-
           utterance.onend = () => {
             speakBtn.textContent = "🔊";
             isSpeaking = false;
           };
-
           speechSynthesis.speak(utterance);
           speakBtn.textContent = "⏹";
           isSpeaking = true;
@@ -389,7 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
       copyBtn.textContent = "📋";
       copyBtn.title = "Copy";
       copyBtn.onclick = () => {
-        navigator.clipboard.writeText(message).then(() => alert("Copied to clipboard!"));
+        navigator.clipboard.writeText(message.replace(/<[^>]*>/g, '')).then(() => alert("Copied to clipboard!"));
       };
 
       controls.appendChild(speakBtn);
@@ -474,16 +426,10 @@ document.addEventListener("DOMContentLoaded", () => {
               })
             }).then(res => res.json());
             
-            // Add visualization (mock scores - backend should provide real ones)
-            const visualization = addProfileVisualization({
-              "Headline": 75,
-              "About": 60,
-              "Experience": 80,
-              "Skills": 70,
-              "Overall": 72
-            });
-            
-            response.response = visualization + response.response;
+            if (response.visualization) {
+              const visualization = addProfileVisualization(response.visualization);
+              response.response = visualization + (response.response || "");
+            }
             
             response.response += `
               <div class="enhancer-actions" style="margin-top: 20px;">
@@ -500,9 +446,9 @@ document.addEventListener("DOMContentLoaded", () => {
             showFeedbackProgress(currentStep);
           }
         } 
-        
-      } else {
-        // Regular response handling
+      }
+
+      if (!response) {
         response = await fetch(BACKEND_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -515,14 +461,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setTimeout(() => {
         typingBubble?.remove();
-        if (response && response.response) {
-          const botMessage = appendMessage("CareerBot", response.response, false, true);
-          currentChat.messages.push({ sender: "CareerBot", text: response.response });
-          
-          if (response.response.includes('<div') || response.response.includes('<button')) {
-            botMessage.innerHTML = response.response;
-          }
+        
+        let responseContent = response.response || response;
+        if (typeof responseContent !== 'string') {
+          responseContent = JSON.stringify(responseContent);
         }
+
+        const botMessage = appendMessage("CareerBot", responseContent, false, true);
+        botMessage.innerHTML = responseContent.includes('<') ? 
+          responseContent : 
+          responseContent.replace(/\n/g, '<br>');
+
+        currentChat.messages.push({ 
+          sender: "CareerBot", 
+          text: responseContent 
+        });
         
         currentChat.timestamp = Date.now();
 
@@ -530,272 +483,3 @@ document.addEventListener("DOMContentLoaded", () => {
           currentChat.title = getTitleFromMessage(userMessage);
           chatHeader.textContent = currentChat.title;
         }
-
-        saveChats();
-        renderChatList();
-        
-        isBotTyping = false;
-        input.disabled = false;
-        input.focus();
-      }, 1000);
-    } catch (error) {
-      typingBubble.remove();
-      appendMessage("CareerBot", "⚠️ Sorry, I couldn't reach the server.");
-      isBotTyping = false;
-      input.disabled = false;
-    }
-  }
-
-  const style = document.createElement('style');
-  style.textContent = `
-    .feedback-progress {
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 12px;
-      margin-top: 16px;
-      border: 1px solid #e2e8f0;
-    }
-    .dark-mode .feedback-progress {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    .progress-title {
-      font-weight: 500;
-      margin-bottom: 12px;
-      color: #334155;
-    }
-    .dark-mode .progress-title {
-      color: #f1f5f9;
-    }
-    .progress-steps {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .progress-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      flex: 1;
-    }
-    .progress-step:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      top: 16px;
-      left: 60%;
-      right: -40%;
-      height: 2px;
-      background: #e2e8f0;
-      z-index: 1;
-    }
-    .dark-mode .progress-step:not(:last-child)::after {
-      background: #334155;
-    }
-    .step-number {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #e2e8f0;
-      color: #64748b;
-      font-weight: 500;
-      margin-bottom: 4px;
-      position: relative;
-      z-index: 2;
-    }
-    .dark-mode .step-number {
-      background: #334155;
-      color: #94a3b8;
-    }
-    .progress-step.completed .step-number {
-      background: #2563eb;
-      color: white;
-    }
-    .progress-step.active .step-number {
-      background: #3b82f6;
-      color: white;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-    }
-    .step-label {
-      font-size: 12px;
-      color: #64748b;
-      text-align: center;
-    }
-    .dark-mode .step-label {
-      color: #94a3b8;
-    }
-    .progress-step.completed .step-label,
-    .progress-step.active .step-label {
-      color: #2563eb;
-      font-weight: 500;
-    }
-    .dark-mode .progress-step.completed .step-label,
-    .dark-mode .progress-step.active .step-label {
-      color: #3b82f6;
-    }
-    .progress-bar {
-      height: 6px;
-      background: #e2e8f0;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .dark-mode .progress-bar {
-      background: #334155;
-    }
-    .progress-fill {
-      height: 100%;
-      background: #2563eb;
-      transition: width 0.3s ease;
-    }
-    .profile-visualization {
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 16px;
-      margin: 16px 0;
-      border: 1px solid #e2e8f0;
-    }
-    .dark-mode .profile-visualization {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    .viz-title {
-      font-weight: 500;
-      margin-bottom: 16px;
-      color: #334155;
-      font-size: 16px;
-    }
-    .dark-mode .viz-title {
-      color: #f1f5f9;
-    }
-    .viz-meters {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .viz-meter {
-      display: flex;
-      align-items: center;
-    }
-    .viz-label {
-      width: 120px;
-      font-size: 14px;
-      color: #475569;
-    }
-    .dark-mode .viz-label {
-      color: #94a3b8;
-    }
-    .meter-container {
-      flex: 1;
-      height: 24px;
-      background: #e2e8f0;
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-    }
-    .dark-mode .meter-container {
-      background: #334155;
-    }
-    .meter-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #3b82f6, #6366f1);
-      border-radius: 12px;
-      transition: width 0.5s ease;
-    }
-    .meter-text {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 12px;
-      font-weight: 500;
-      color: white;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    }
-  `;
-  document.head.appendChild(style);
-  
-  document.querySelectorAll('#linkedin-btn').forEach(button => {
-    button.addEventListener('click', () => {
-      if (activeTool === 'linkedin') return;
-    
-      activeTool = 'linkedin';
-      linkedinEnhancerState = 'initial';
-      disableAllTools();
-    
-      if (!currentChat) {
-        currentChat = createChat("LinkedIn Profile Enhancement");
-        chats.unshift(currentChat);
-        chatHeader.textContent = currentChat.title;
-      }
-    
-      if (!hasUserMessaged) {
-        introScreen.style.display = "none";
-        hasUserMessaged = true;
-      }
-    
-      sendMessage("Help me enhance my LinkedIn profile.");
-    });
-  });
-  
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const msg = input.value.trim();
-    if (msg) {
-      sendMessage(msg);
-      input.value = "";
-    }
-  });
-
-  darkToggle?.addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-  });
-
-  newChatBtn?.addEventListener("click", () => {
-    if (currentChat?.messages?.length) saveChats();
-    startNewChat();
-  });
-
-  function startNewChat() {
-    currentChat = null;
-    chatBox.innerHTML = "";
-    introScreen.style.display = "flex";
-    hasUserMessaged = false;
-    // Reset header to "New Chat"
-    chatHeader.textContent = "New Chat";
-  }
-
-  renderChatList();
-
-  exportBtn.addEventListener("click", () => {
-    if (!currentChat || currentChat.messages.length === 0) {
-      alert("No chat to export.");
-      return;
-    }
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 10;
-
-    doc.setFont("helvetica");
-    doc.setFontSize(12);
-    doc.text("CareerBot – Conversation Export", 10, y);
-    y += 10;
-
-    currentChat.messages.forEach(msg => {
-      const sender = msg.sender === "You" ? "You" : "CareerBot";
-      const lines = doc.splitTextToSize(`${sender}: ${msg.text}`, 180);
-      lines.forEach(line => {
-        if (y > 280) { doc.addPage(); y = 10; }
-        doc.text(line, 10, y);
-        y += 7;
-      });
-      y += 5;
-    });
-
-    const filename = (currentChat.title || "CareerBot_Chat").replace(/\s+/g, "_") + ".pdf";
-    doc.save(filename);
-  });
-});
