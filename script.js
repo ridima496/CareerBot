@@ -483,3 +483,292 @@ document.addEventListener("DOMContentLoaded", () => {
           currentChat.title = getTitleFromMessage(userMessage);
           chatHeader.textContent = currentChat.title;
         }
+
+        saveChats();
+        renderChatList();
+        
+        isBotTyping = false;
+        input.disabled = false;
+        input.focus();
+      }, 1000);
+    } catch (error) {
+      typingBubble.remove();
+      const errorMessage = "⚠️ Sorry, I couldn't reach the server.";
+      appendMessage("CareerBot", errorMessage, false, true);
+      currentChat.messages.push({ sender: "CareerBot", text: errorMessage });
+      isBotTyping = false;
+      input.disabled = false;
+    }
+  }
+
+  // Add CSS styles
+  const style = document.createElement('style');
+  style.textContent = `
+    .feedback-progress {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      border: 1px solid #e2e8f0;
+    }
+    .dark-mode .feedback-progress {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    .progress-title {
+      font-weight: 500;
+      margin-bottom: 12px;
+      color: #334155;
+    }
+    .dark-mode .progress-title {
+      color: #f1f5f9;
+    }
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      flex: 1;
+    }
+    .progress-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 16px;
+      left: 60%;
+      right: -40%;
+      height: 2px;
+      background: #e2e8f0;
+      z-index: 1;
+    }
+    .dark-mode .progress-step:not(:last-child)::after {
+      background: #334155;
+    }
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e2e8f0;
+      color: #64748b;
+      font-weight: 500;
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 2;
+    }
+    .dark-mode .step-number {
+      background: #334155;
+      color: #94a3b8;
+    }
+    .progress-step.completed .step-number {
+      background: #2563eb;
+      color: white;
+    }
+    .progress-step.active .step-number {
+      background: #3b82f6;
+      color: white;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+    .step-label {
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+    }
+    .dark-mode .step-label {
+      color: #94a3b8;
+    }
+    .progress-step.completed .step-label,
+    .progress-step.active .step-label {
+      color: #2563eb;
+      font-weight: 500;
+    }
+    .dark-mode .progress-step.completed .step-label,
+    .dark-mode .progress-step.active .step-label {
+      color: #3b82f6;
+    }
+    .progress-bar {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .dark-mode .progress-bar {
+      background: #334155;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #2563eb;
+      transition: width 0.3s ease;
+    }
+    .profile-visualization {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      border: 1px solid #e2e8f0;
+    }
+    .dark-mode .profile-visualization {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    .viz-title {
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: #334155;
+      font-size: 16px;
+    }
+    .dark-mode .viz-title {
+      color: #f1f5f9;
+    }
+    .viz-meters {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .viz-meter {
+      display: flex;
+      align-items: center;
+    }
+    .viz-label {
+      width: 120px;
+      font-size: 14px;
+      color: #475569;
+    }
+    .dark-mode .viz-label {
+      color: #94a3b8;
+    }
+    .meter-container {
+      flex: 1;
+      height: 24px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .dark-mode .meter-container {
+      background: #334155;
+    }
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #6366f1);
+      border-radius: 12px;
+      transition: width 0.5s ease;
+    }
+    .meter-text {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      font-weight: 500;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .message.bot {
+      background-color: #f3f4f6;
+      color: #111827;
+    }
+    .dark-mode .message.bot {
+      background-color: #1f2937;
+      color: #f9fafb;
+    }
+    .message.user {
+      background-color: #2563eb;
+      color: white;
+    }
+    .message {
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 70%;
+      margin: 10px 0;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  document.querySelectorAll('#linkedin-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      if (activeTool === 'linkedin') return;
+    
+      activeTool = 'linkedin';
+      linkedinEnhancerState = 'initial';
+      disableAllTools();
+    
+      if (!currentChat) {
+        currentChat = createChat("LinkedIn Profile Enhancement");
+        chats.unshift(currentChat);
+        chatHeader.textContent = currentChat.title;
+      }
+    
+      if (!hasUserMessaged) {
+        introScreen.style.display = "none";
+        hasUserMessaged = true;
+      }
+    
+      sendMessage("Help me enhance my LinkedIn profile.");
+    });
+  });
+  
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const msg = input.value.trim();
+    if (msg) {
+      sendMessage(msg);
+      input.value = "";
+    }
+  });
+
+  darkToggle?.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+  });
+
+  newChatBtn?.addEventListener("click", () => {
+    if (currentChat?.messages?.length) saveChats();
+    startNewChat();
+  });
+
+  function startNewChat() {
+    currentChat = null;
+    chatBox.innerHTML = "";
+    introScreen.style.display = "flex";
+    hasUserMessaged = false;
+    chatHeader.textContent = "New Chat";
+  }
+
+  renderChatList();
+
+  exportBtn.addEventListener("click", () => {
+    if (!currentChat || currentChat.messages.length === 0) {
+      alert("No chat to export.");
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+
+    doc.setFont("helvetica");
+    doc.setFontSize(12);
+    doc.text("CareerBot – Conversation Export", 10, y);
+    y += 10;
+
+    currentChat.messages.forEach(msg => {
+      const sender = msg.sender === "You" ? "You" : "CareerBot";
+      const lines = doc.splitTextToSize(`${sender}: ${msg.text}`, 180);
+      lines.forEach(line => {
+        if (y > 280) { doc.addPage(); y = 10; }
+        doc.text(line, 10, y);
+        y += 7;
+      });
+      y += 5;
+    });
+
+    const filename = (currentChat.title || "CareerBot_Chat").replace(/\s+/g, "_") + ".pdf";
+    doc.save(filename);
+  });
+});
