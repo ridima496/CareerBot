@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // DOM Elements
   const form = document.getElementById("chat-form");
   const input = document.getElementById("user-input");
   const chatBox = document.getElementById("chat-box");
@@ -9,9 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const introScreen = document.getElementById("intro-screen");
   const exportBtn = document.getElementById("export-pdf");
   const chatHeader = document.getElementById("chat-header");
+  const sidebarToggle = document.getElementById("sidebar-toggle");
 
   const BACKEND_URL = "https://careerbot-backend-i1qt.onrender.com/get_response";
 
+  // State variables
   let chats = JSON.parse(localStorage.getItem("careerbot_chats") || "[]");
   let currentChat = null;
   let isBotTyping = false;
@@ -19,6 +22,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeTool = null;
   let linkedinEnhancerState = null;
 
+  // Initialize sidebar
+  function initSidebar() {
+    sidebarToggle.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+    });
+    
+    // Show sidebar by default on larger screens
+    if (window.innerWidth > 768) {
+      sidebar.classList.remove("hidden");
+    }
+  }
+
+  // Update button states
   function updateButtonStates() {
     const buttons = document.querySelectorAll('.top-button');
     buttons.forEach(button => {
@@ -421,16 +437,15 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       let response;
 
+      // Handle LinkedIn enhancer flow
       if (activeTool === 'linkedin') {
         if (userMessage === "Help me enhance my LinkedIn profile") {
-          // Directly show options menu
-          showLinkedInEnhancerOptions(true);
+          showLinkedInEnhancerOptions();
           isBotTyping = false;
-          input.disabled = true;  // Keep input disabled
+          input.disabled = true;
           return;
         }
-      
-      if (activeTool === 'linkedin') {
+
         if (linkedinEnhancerState === 'feedback_flow') {
           if (!currentChat.linkedinFeedbackData) {
             currentChat.linkedinFeedbackData = {};
