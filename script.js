@@ -64,43 +64,42 @@ document.addEventListener("DOMContentLoaded", () => {
       enableAllTools();
       updateButtonStates();
       highlightLinkedInChat(false);
+      input.disabled = false;
       return;
     }
 
     if (choice) {
+      let optionText = "";
       switch (choice) {
         case 'headline':
-          appendMessage("You", "Improve my headline. Here is my exact headline: <Please paste your headline here>", false, false);
-          linkedinEnhancerState = 'awaiting_headline';
+          optionText = "Improve my headline. Here is my exact headline: ";
           break;
         case 'about':
-          appendMessage("You", "Improve my about section. Here is my exact about section: <Please paste your about section here>", false, false);
-          linkedinEnhancerState = 'awaiting_about';
+          optionText = "Improve my about section. Here is my exact about section: ";
           break;
         case 'experience':
-          appendMessage("You", "Improve my experience section. Here is my exact experience section: <Please paste your experience section here>", false, false);
-          linkedinEnhancerState = 'awaiting_experience';
+          optionText = "Improve my experience section. Here is my exact experience section: ";
           break;
         case 'skills':
-          appendMessage("You", "Optimize my skills section. Here are my exact skills: <Please paste your skills here>", false, false);
-          linkedinEnhancerState = 'awaiting_skills';
+          optionText = "Optimize my skills section. Here are my exact skills: ";
           break;
         case 'feedback':
-          linkedinEnhancerState = 'feedback_flow';
-          currentChat.linkedinFeedbackData = {};
-          showFeedbackProgress(0);
-          appendMessage("CareerBot", "Let's analyze your entire LinkedIn profile. First, please share your current headline:", false, true);
+          optionText = "Give me overall profile feedback";
           break;
         case 'restart':
           linkedinEnhancerState = 'initial';
           showLinkedInEnhancerOptions();
-          break;
+          return;
       }
-    } else {
-      showLinkedInEnhancerOptions();
+      
+      // Pre-fill input instead of sending directly
+      input.value = optionText;
+      input.disabled = false;
+      input.focus();
+      input.selectionStart = input.selectionEnd = optionText.length;
     }
   }
-
+  
   function showFeedbackProgress(step) {
     const steps = ["Headline", "About Section", "Experience", "Skills", "Desired Job"];
     
@@ -346,6 +345,10 @@ document.addEventListener("DOMContentLoaded", () => {
     messageRow.appendChild(bubble);
     container.appendChild(messageRow);
 
+    if (sender === "CareerBot" && message.includes("What would you like to enhance")) {
+      bubble.classList.add('enhancer-menu');
+    }
+
     if (sender === "CareerBot" && !isTyping) {
       const controls = document.createElement("div");
       controls.className = "bot-controls";
@@ -417,6 +420,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       let response;
+
+      if (activeTool === 'linkedin') {
+        if (userMessage === "Help me enhance my LinkedIn profile") {
+          // Directly show options menu
+          showLinkedInEnhancerOptions(true);
+          isBotTyping = false;
+          input.disabled = true;  // Keep input disabled
+          return;
+        }
       
       if (activeTool === 'linkedin') {
         if (linkedinEnhancerState === 'feedback_flow') {
@@ -551,6 +563,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add CSS styles
   const style = document.createElement('style');
   style.textContent = `
+    .dark-mode .enhancer-menu {
+      background-color: #1f2937 !important;
+      color: #f9fafb !important;
+    }
+    .dark-mode .enhancer-option {
+      background-color: #374151 !important;
+      color: #f3f4f6 !important;
+      border-color: #4b5563 !important;
+    }    
+    .dark-mode .enhancer-option:hover {
+      background-color: #4b5563 !important;
+    }
+    .enhancer-action {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background-color: #ffffff;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .dark-mode .enhancer-action {
+      background-color: #374151;
+      color: #f3f4f6;
+      border-color: #4b5563;
+    }
     .feedback-progress {
       background: #f8fafc;
       border-radius: 8px;
@@ -758,7 +795,17 @@ document.addEventListener("DOMContentLoaded", () => {
         hasUserMessaged = true;
       }
     
-      // Don't send message immediately, show options first
+      // Send the initial user message
+      appendMessage("You", "Help me enhance my LinkedIn profile");
+      currentChat.messages.push({ 
+        sender: "You", 
+        text: "Help me enhance my LinkedIn profile" 
+      });
+      
+      // Disable input until user selects an option
+      input.disabled = true;
+      
+      // Show menu options
       showLinkedInEnhancerOptions();
     });
   });
