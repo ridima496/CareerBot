@@ -19,6 +19,34 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeTool = null;
   let linkedinEnhancerState = null;
 
+  function updateButtonStates() {
+    const buttons = document.querySelectorAll('.top-button');
+    buttons.forEach(button => {
+      if (button.disabled) {
+        button.style.color = '#9ca3af';
+        button.style.cursor = 'not-allowed';
+      } else {
+        button.style.color = '';
+        button.style.cursor = 'pointer';
+      }
+    });
+  }
+
+  function highlightLinkedInChat(active = true) {
+    const chatItems = document.querySelectorAll('.chat-item');
+    chatItems.forEach(item => {
+      if (item.dataset.id === currentChat?.id) {
+        if (active) {
+          item.style.borderLeft = '4px solid #2563eb';
+          item.style.paddingLeft = '8px';
+        } else {
+          item.style.borderLeft = '';
+          item.style.paddingLeft = '';
+        }
+      }
+    });
+  }
+  
   function saveChats() {
     localStorage.setItem("careerbot_chats", JSON.stringify(chats));
     renderChatList();
@@ -30,6 +58,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleLinkedInEnhancer(choice = null) {
+    if (choice === 'quit') {
+      activeTool = null;
+      linkedinEnhancerState = null;
+      enableAllTools();
+      updateButtonStates();
+      highlightLinkedInChat(false);
+      return;
+    }
+
     if (choice) {
       switch (choice) {
         case 'headline':
@@ -57,11 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
         case 'restart':
           linkedinEnhancerState = 'initial';
           showLinkedInEnhancerOptions();
-          break;
-        case 'quit':
-          activeTool = null;
-          linkedinEnhancerState = null;
-          enableAllTools();
           break;
       }
     } else {
@@ -181,12 +213,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.top-button').forEach(button => {
       button.disabled = true;
     });
+    updateButtonStates();
   }
-
+  
   function enableAllTools() {
     document.querySelectorAll('.top-button').forEach(button => {
       button.disabled = false;
     });
+    updateButtonStates();
   }
 
   function getTitleFromMessage(msg) {
@@ -207,7 +241,13 @@ document.addEventListener("DOMContentLoaded", () => {
       div.className = "chat-item";
       div.dataset.id = chat.id;
 
-      if (currentChat?.id === chat.id) div.classList.add("active");
+      if (currentChat?.id === chat.id) {
+        div.classList.add("active");
+        if (activeTool === 'linkedin') {
+          div.style.borderLeft = '4px solid #2563eb';
+          div.style.paddingLeft = '8px';
+        }
+      }
 
       const title = document.createElement("div");
       title.className = "chat-title-text";
@@ -449,14 +489,21 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (!response) {
-        response = await fetch(BACKEND_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: userMessage,
-            history: currentChat.messages.slice(-5)
-          })
-        }).then(res => res.json());
+        if (activeTool !== 'linkedin' || linkedinEnhancerState !== 'initial') {
+          response = await fetch(BACKEND_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message: userMessage,
+              history: currentChat.messages.slice(-5)
+            })
+          }).then(res => res.json());
+        } else {
+          showLinkedInEnhancerOptions();
+          isBotTyping = false;
+          input.disabled = false;
+          return;
+        }
       }
 
       setTimeout(() => {
@@ -698,6 +745,7 @@ document.addEventListener("DOMContentLoaded", () => {
       activeTool = 'linkedin';
       linkedinEnhancerState = 'initial';
       disableAllTools();
+      highlightLinkedInChat(true);
     
       if (!currentChat) {
         currentChat = createChat("LinkedIn Profile Enhancement");
@@ -710,7 +758,8 @@ document.addEventListener("DOMContentLoaded", () => {
         hasUserMessaged = true;
       }
     
-      sendMessage("Help me enhance my LinkedIn profile.");
+      // Don't send message immediately, show options first
+      showLinkedInEnhancerOptions();
     });
   });
   
@@ -733,11 +782,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function startNewChat() {
+    activeTool = null;
+    linkedinEnhancerState = null;
     currentChat = null;
     chatBox.innerHTML = "";
     introScreen.style.display = "flex";
     hasUserMessaged = false;
     chatHeader.textContent = "New Chat";
+    enableAllTools();
+    highlightLinkedInChat(false);
   }
 
   renderChatList();
