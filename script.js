@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function getTitleFromMessage(msg) {
     const txt = msg.toLowerCase();
     if (["hi", "hello", "hey"].includes(txt)) return "Introduction and Greetings";
-    if (txt.includes("resume")) return "Resume Assistance";
+    if (txt.includes("resume") || txt.includes("cv") || txt.includes("biodata") || txt.includes("curriculum vitae")) return "Resume Assistance";
     if (txt.includes("linkedin")) return "LinkedIn Profile Help";
     if (txt.includes("career") || txt.includes("future")) return "Career Guidance";
     if (txt.includes("skills") || txt.includes("map")) return "Skill Mapping";
