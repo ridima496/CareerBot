@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const introScreen = document.getElementById("intro-screen");
   const exportBtn = document.getElementById("export-pdf");
   const chatHeader = document.getElementById("chat-header");
-  const sidebarToggle = document.getElementById("sidebar-toggle");
 
   const BACKEND_URL = "https://careerbot-backend-i1qt.onrender.com/get_response";
 
@@ -22,10 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize sidebar
   function initSidebar() {
-    sidebarToggle.addEventListener("click", () => {
-      sidebar.classList.toggle("hidden");
-    });
-    
     // Show sidebar by default on larger screens
     if (window.innerWidth > 768) {
       sidebar.classList.remove("hidden");
@@ -62,10 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (currentChat?.id === chat.id) {
         div.classList.add("active");
-        if (activeTool === 'linkedin') {
-          div.style.borderLeft = '4px solid #2563eb';
-          div.style.paddingLeft = '8px';
-        }
       }
 
       const title = document.createElement("div");
@@ -165,10 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
     messageRow.appendChild(bubble);
     container.appendChild(messageRow);
 
-    if (sender === "CareerBot" && message.includes("What would you like to enhance")) {
-      bubble.classList.add('enhancer-menu');
-    }
-
     if (sender === "CareerBot" && !isTyping) {
       const controls = document.createElement("div");
       controls.className = "bot-controls";
@@ -239,50 +226,68 @@ document.addEventListener("DOMContentLoaded", () => {
     input.disabled = true;
 
     try {
-      let response;
+      const response = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: userMessage,
+          history: currentChat.messages.slice(-5)
+        })
+      });
 
-      setTimeout(() => {
-        typingBubble?.remove();
+      const result = await response.json();
+      const responseContent = result.response || "No response generated.";
+
+      typingBubble?.remove();
         
-        let responseContent = response.response || response;
-        if (typeof responseContent !== 'string') {
-          responseContent = JSON.stringify(responseContent);
-        }
+      const botMessage = appendMessage("CareerBot", responseContent, false, true);
+      botMessage.innerHTML = responseContent.includes('<') ? 
+        responseContent : 
+        responseContent.replace(/\n/g, '<br>');
 
-        const botMessage = appendMessage("CareerBot", responseContent, false, true);
-        botMessage.innerHTML = responseContent.includes('<') ? 
-          responseContent : 
-          responseContent.replace(/\n/g, '<br>');
+      currentChat.messages.push({ 
+        sender: "CareerBot", 
+        text: responseContent 
+      });
+      
+      currentChat.timestamp = Date.now();
 
-        currentChat.messages.push({ 
-          sender: "CareerBot", 
-          text: responseContent 
-        });
-        
-        currentChat.timestamp = Date.now();
+      if (currentChat.title === "New Chat") {
+        currentChat.title = getTitleFromMessage(userMessage);
+        chatHeader.textContent = currentChat.title;
+      }
 
-        if (currentChat.title === "New Chat") {
-          currentChat.title = getTitleFromMessage(userMessage);
-          chatHeader.textContent = currentChat.title;
-        }
-
-        saveChats();
-        renderChatList();
-        
-        isBotTyping = false;
-        input.disabled = false;
-        input.focus();
-      }, 1000);
+      saveChats();
+      renderChatList();
     } catch (error) {
-      typingBubble.remove();
+      typingBubble?.remove();
       const errorMessage = "⚠️ Sorry, I couldn't reach the server.";
       appendMessage("CareerBot", errorMessage, false, true);
-      currentChat.messages.push({ sender: "CareerBot", text: errorMessage });
+      currentChat?.messages.push({ sender: "CareerBot", text: errorMessage });
+    } finally {
       isBotTyping = false;
       input.disabled = false;
+      input.focus();
     }
   }
   
+  // Add grievance button functionality
+  document.querySelectorAll('.grievance-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const questions = {
+        "Career Path Guidance": "Can you tell me how to become a [Career]?",
+        "Skills Development": "What skills do I need for a career in [Field]?",
+        "Job Search Tips": "How can I find jobs in [Industry]?",
+        "Salary Negotiation": "How should I negotiate salary for [Position]?",
+        "Career Change Advice": "How do I switch careers to [New Field]?"
+      };
+      
+      input.value = questions[button.textContent];
+      input.focus();
+      input.selectionStart = input.selectionEnd = input.value.indexOf('[');
+    });
+  });
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const msg = input.value.trim();
@@ -310,6 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   renderChatList();
+  initSidebar();
 
   exportBtn.addEventListener("click", () => {
     if (!currentChat || currentChat.messages.length === 0) {
