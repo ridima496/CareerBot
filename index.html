@@ -53,6 +53,56 @@
       box-sizing: border-box;
     }
 
+    #intro-screen {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+      position: static;
+      transform: none;
+      top: auto;
+      left: auto;
+      width: auto;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .chat-window {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-window::-webkit-scrollbar,
+    .sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .chat-window::-webkit-scrollbar-track,
+    .sidebar::-webkit-scrollbar-track {
+      background: var(--bg-light-secondary);
+      border-radius: 4px;
+    }
+    
+    .chat-window::-webkit-scrollbar-thumb,
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--primary-light);
+      border-radius: 4px;
+    }
+    
+    .dark-mode .chat-window::-webkit-scrollbar-track,
+    .dark-mode .sidebar::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+    
+    .dark-mode .chat-window::-webkit-scrollbar-thumb,
+    .dark-mode .sidebar::-webkit-scrollbar-thumb {
+      background: var(--primary-dark);
+    }
+
     body {
       margin: 0;
       font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
