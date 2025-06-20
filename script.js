@@ -114,94 +114,118 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function appendMessage(sender, message, isTyping = false, showAvatar = false) {
-    const container = document.createElement("div");
-    container.className = "message-container";
-    container.style.alignItems = sender === "You" ? "flex-end" : "flex-start";
-    container.style.marginBottom = "15px";
-
-    if (sender === "CareerBot") {
-      container.style.marginLeft = "150px";
-    }
-
-    const messageRow = document.createElement("div");
-    messageRow.style.display = "flex";
-    messageRow.style.alignItems = "flex-start";
-    messageRow.style.justifyContent = sender === "You" ? "flex-end" : "flex-start";
-    messageRow.style.width = "100%";
-
-    const bubble = document.createElement("div");
-    bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
-
-    if (isTyping) {
-      const warmUpText = currentChat?.messages?.length === 0 ? 
-        `<span class="typing-indicator">Warming up the bot, please wait<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>` :
-        `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
-      bubble.innerHTML = warmUpText;
-    } else {
-      if (sender === "CareerBot" && (message.includes('<') || message.includes('\n'))) {
-        bubble.innerHTML = message.includes('<') ? message : message.replace(/\n/g, '<br>');
-      } else {
-        bubble.textContent = message;
+      const container = document.createElement("div");
+      container.className = "message-container";
+      container.style.alignItems = sender === "You" ? "flex-end" : "flex-start";
+      container.style.marginBottom = "15px";
+  
+      if (sender === "CareerBot") {
+          container.style.marginLeft = "150px";
       }
-    }
-
-    if (sender === "CareerBot" && showAvatar && !isTyping) {
-      const avatar = document.createElement("img");
-      avatar.src = "logo512.png";
-      avatar.className = "avatar";
-      avatar.style.marginRight = "6px";
-      messageRow.appendChild(avatar);
-    }
-
-    messageRow.appendChild(bubble);
-    container.appendChild(messageRow);
-
-    if (sender === "CareerBot" && !isTyping) {
-      const controls = document.createElement("div");
-      controls.className = "bot-controls";
-      controls.style.display = "flex";
-      controls.style.alignItems = "center";
-      controls.style.marginTop = "8px";
-      
-      let isSpeaking = false;
-      let utterance = null;
-
-      const speakBtn = document.createElement("button");
-      speakBtn.textContent = "🔊";
-      speakBtn.title = "Speak";
-      speakBtn.onclick = () => {
-        if (isSpeaking) {
-          speechSynthesis.cancel();
+  
+      const messageRow = document.createElement("div");
+      messageRow.style.display = "flex";
+      messageRow.style.alignItems = "flex-start";
+      messageRow.style.justifyContent = sender === "You" ? "flex-end" : "flex-start";
+      messageRow.style.width = "100%";
+  
+      const bubble = document.createElement("div");
+      bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
+  
+      if (isTyping) {
+          const warmUpText = currentChat?.messages?.length === 0 ? 
+              `<span class="typing-indicator">Warming up the bot, please wait<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>` :
+              `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
+          bubble.innerHTML = warmUpText;
+      } else {
+          // Convert markdown-style formatting to HTML
+          let formattedMessage = message
+              // Bold
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              // Italics
+              .replace(/\*(.*?)\*/g, '<em>$1</em>')
+              // Highlight
+              .replace(/==(.*?)==/g, '<mark>$1</mark>')
+              // Headers (h3)
+              .replace(/### (.*?)(<br>|$)/g, '<h3 class="bot-heading">$1</h3>')
+              // Headers (h4)
+              .replace(/#### (.*?)(<br>|$)/g, '<h4 class="bot-subheading">$1</h4>')
+              // Lists
+              .replace(/- (.*?)(<br>|$)/g, '<li>$1</li>')
+              // Replace multiple <br> with single ones
+              .replace(/(<br>\s*){2,}/g, '<br><br>');
+  
+          // Wrap lists in <ul> tags if we find <li> elements
+          if (formattedMessage.includes('<li>')) {
+              formattedMessage = formattedMessage.replace(/(<li>.*?<\/li>)+/g, '<ul>$&</ul>');
+          }
+  
+          bubble.innerHTML = formattedMessage;
+      }
+  
+      if (sender === "CareerBot" && showAvatar && !isTyping) {
+          const avatar = document.createElement("img");
+          avatar.src = "logo512.png";
+          avatar.className = "avatar";
+          avatar.style.marginRight = "6px";
+          messageRow.appendChild(avatar);
+      }
+  
+      messageRow.appendChild(bubble);
+      container.appendChild(messageRow);
+  
+      if (sender === "CareerBot" && !isTyping) {
+          const controls = document.createElement("div");
+          controls.className = "bot-controls";
+          controls.style.display = "flex";
+          controls.style.alignItems = "center";
+          controls.style.marginTop = "8px";
+          
+          let isSpeaking = false;
+          let utterance = null;
+  
+          const speakBtn = document.createElement("button");
           speakBtn.textContent = "🔊";
-          isSpeaking = false;
-        } else {
-          utterance = new SpeechSynthesisUtterance(message.replace(/<[^>]*>/g, ''));
-          utterance.lang = "en-US";
-          utterance.onend = () => {
-            speakBtn.textContent = "🔊";
-            isSpeaking = false;
+          speakBtn.title = "Speak";
+          speakBtn.onclick = () => {
+              if (isSpeaking) {
+                  speechSynthesis.cancel();
+                  speakBtn.textContent = "🔊";
+                  isSpeaking = false;
+              } else {
+                  utterance = new SpeechSynthesisUtterance(bubble.textContent);
+                  utterance.lang = "en-US";
+                  utterance.onend = () => {
+                      speakBtn.textContent = "🔊";
+                      isSpeaking = false;
+                  };
+                  speechSynthesis.speak(utterance);
+                  speakBtn.textContent = "⏹";
+                  isSpeaking = true;
+              }
           };
-          speechSynthesis.speak(utterance);
-          speakBtn.textContent = "⏹";
-          isSpeaking = true;
-        }
-      };
-      
-      const copyBtn = document.createElement("button");
-      copyBtn.textContent = "📋";
-      copyBtn.title = "Copy";
-      copyBtn.onclick = () => {
-        navigator.clipboard.writeText(message.replace(/<[^>]*>/g, '')).then(() => alert("Copied to clipboard!"));
-      };
-
-      controls.appendChild(speakBtn);
-      controls.appendChild(copyBtn);
-      container.appendChild(controls);
-    }
-
-    chatBox.appendChild(container);
-    chatBox.scrollTop = chatBox.scrollHeight;
-    return bubble;
+          
+          const copyBtn = document.createElement("button");
+          copyBtn.textContent = "📋";
+          copyBtn.title = "Copy";
+          copyBtn.onclick = () => {
+              navigator.clipboard.writeText(bubble.textContent).then(() => {
+                  const originalText = copyBtn.textContent;
+                  copyBtn.textContent = "✓ Copied!";
+                  setTimeout(() => {
+                      copyBtn.textContent = originalText;
+                  }, 2000);
+              });
+          };
+  
+          controls.appendChild(speakBtn);
+          controls.appendChild(copyBtn);
+          container.appendChild(controls);
+      }
+  
+      chatBox.appendChild(container);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return bubble;
   }
 
   async function sendMessage(userMessage) {
