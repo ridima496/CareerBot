@@ -262,7 +262,9 @@ document.addEventListener("DOMContentLoaded", () => {
               })
           });
 
-          loadingContainer.remove();
+          if (loadingContainer) {
+              loadingContainer.remove();
+          }
   
           // Remove the typing indicator
           typingBubble?.remove();
