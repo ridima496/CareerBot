@@ -119,16 +119,11 @@ document.addEventListener("DOMContentLoaded", () => {
       container.style.alignItems = sender === "You" ? "flex-end" : "flex-start";
       container.style.marginBottom = "20px";
   
-      if (sender === "CareerBot") {
-          container.style.marginLeft = "150px";
-      }
-  
       const messageRow = document.createElement("div");
+      messageRow.className = "message-row";
       messageRow.style.display = "flex";
       messageRow.style.alignItems = "flex-start";
       messageRow.style.justifyContent = sender === "You" ? "flex-end" : "flex-start";
-      messageRow.style.width = "100%";
-      messageRow.style.maxWidth = "calc(100% - 40px)";
   
       const bubble = document.createElement("div");
       bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
@@ -138,38 +133,33 @@ document.addEventListener("DOMContentLoaded", () => {
               `<span class="typing-indicator">Warming up the bot, please wait<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>` :
               `<span class="typing-indicator">CareerBot is typing<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>`;
           bubble.innerHTML = warmUpText;
+          
+          // Add invisible avatar space for typing indicator
+          const avatarSpace = document.createElement("div");
+          avatarSpace.className = "avatar-space";
+          messageRow.appendChild(avatarSpace);
       } else {
-          // Convert markdown-style formatting to HTML
+          // Formatting logic remains the same
           let formattedMessage = message
-              // Bold
               .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-              // Italics
               .replace(/\*(.*?)\*/g, '<em>$1</em>')
-              // Highlight
               .replace(/==(.*?)==/g, '<mark>$1</mark>')
-              // Headers (h3)
               .replace(/### (.*?)(<br>|$)/g, '<h3 class="bot-heading">$1</h3>')
-              // Headers (h4)
               .replace(/#### (.*?)(<br>|$)/g, '<h4 class="bot-subheading">$1</h4>')
-              // Lists
               .replace(/- (.*?)(<br>|$)/g, '<li>$1</li>')
-              // Replace multiple <br> with single ones
               .replace(/(<br>\s*){2,}/g, '<br><br>');
   
-          // Wrap lists in <ul> tags if we find <li> elements
           if (formattedMessage.includes('<li>')) {
               formattedMessage = formattedMessage.replace(/(<li>.*?<\/li>)+/g, '<ul>$&</ul>');
           }
-  
           bubble.innerHTML = formattedMessage;
-      }
   
-      if (sender === "CareerBot" && showAvatar && !isTyping) {
-          const avatar = document.createElement("img");
-          avatar.src = "logo512.png";
-          avatar.className = "avatar";
-          avatar.style.marginRight = "6px";
-          messageRow.appendChild(avatar);
+          if (sender === "CareerBot" && showAvatar) {
+              const avatar = document.createElement("img");
+              avatar.src = "logo512.png";
+              avatar.className = "avatar";
+              messageRow.appendChild(avatar);
+          }
       }
   
       messageRow.appendChild(bubble);
@@ -178,10 +168,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (sender === "CareerBot" && !isTyping) {
           const controls = document.createElement("div");
           controls.className = "bot-controls";
-          controls.style.display = "flex";
-          controls.style.alignItems = "center";
-          controls.style.marginTop = "8px";
           
+          // Same controls creation logic
           let isSpeaking = false;
           let utterance = null;
   
@@ -194,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   speakBtn.textContent = "🔊";
                   isSpeaking = false;
               } else {
-                  utterance = new SpeechSynthesisUtterance(bubble.textContent);
+                  utterance = new SpeechSynthesisUtterance(bubble.textContent.replace(/<[^>]*>/g, ''));
                   utterance.lang = "en-US";
                   utterance.onend = () => {
                       speakBtn.textContent = "🔊";
@@ -210,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
           copyBtn.textContent = "📋";
           copyBtn.title = "Copy";
           copyBtn.onclick = () => {
-              navigator.clipboard.writeText(bubble.textContent).then(() => {
+              navigator.clipboard.writeText(bubble.textContent.replace(/<[^>]*>/g, '')).then(() => {
                   const originalText = copyBtn.textContent;
                   copyBtn.textContent = "✓ Copied!";
                   setTimeout(() => {
@@ -228,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
       chatBox.scrollTop = chatBox.scrollHeight;
       return bubble;
   }
-
+  
   async function sendMessage(userMessage) {
       if (isBotTyping) return;
   
