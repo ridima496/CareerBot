@@ -229,70 +229,129 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function sendMessage(userMessage) {
-    if (isBotTyping) return;
-
-    if (!currentChat) {
-      currentChat = createChat();
-      chats.unshift(currentChat);
-      chatHeader.textContent = currentChat.title;
-    }
-
-    if (!hasUserMessaged) {
-      introScreen.style.display = "none";
-      hasUserMessaged = true;
-    }
-
-    appendMessage("You", userMessage);
-    currentChat.messages.push({ sender: "You", text: userMessage });
-
-    const typingBubble = appendMessage("CareerBot", "", true, false);
-    isBotTyping = true;
-    input.disabled = true;
-
-    try {
-      const response = await fetch(BACKEND_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userMessage,
-          history: currentChat.messages.slice(-5)
-        })
-      });
-
-      const result = await response.json();
-      const responseContent = result.response || "No response generated.";
-
-      typingBubble?.remove();
-        
-      const botMessage = appendMessage("CareerBot", responseContent, false, true);
-      botMessage.innerHTML = responseContent.includes('<') ? 
-        responseContent : 
-        responseContent.replace(/\n/g, '<br>');
-
-      currentChat.messages.push({ 
-        sender: "CareerBot", 
-        text: responseContent 
-      });
-      
-      currentChat.timestamp = Date.now();
-
-      if (currentChat.title === "New Chat") {
-        currentChat.title = getTitleFromMessage(userMessage);
-        chatHeader.textContent = currentChat.title;
+      if (isBotTyping) return;
+  
+      if (!currentChat) {
+          currentChat = createChat();
+          chats.unshift(currentChat);
+          chatHeader.textContent = currentChat.title;
       }
-
-      saveChats();
-      renderChatList();
-    } catch (error) {
-      typingBubble?.remove();
-      const errorMessage = "⚠️ Sorry, I couldn't reach the server.";
-      appendMessage("CareerBot", errorMessage, false, true);
-      currentChat?.messages.push({ sender: "CareerBot", text: errorMessage });
-    } finally {
-      isBotTyping = false;
-      input.disabled = false;
-      input.focus();
-    }
+  
+      if (!hasUserMessaged) {
+          introScreen.style.display = "none";
+          hasUserMessaged = true;
+      }
+  
+      appendMessage("You", userMessage);
+      currentChat.messages.push({ sender: "You", text: userMessage });
+  
+      const typingBubble = appendMessage("CareerBot", "", true, false);
+      isBotTyping = true;
+      input.disabled = true;
+  
+      try {
+          const response = await fetch(BACKEND_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                  message: userMessage,
+                  history: currentChat.messages.slice(-5)
+              })
+          });
+  
+          // Remove the typing indicator
+          typingBubble?.remove();
+          
+          // Create a new message container for streaming
+          const messageContainer = document.createElement("div");
+          messageContainer.className = "message-container";
+          messageContainer.style.alignItems = "flex-start";
+          messageContainer.style.marginBottom = "15px";
+          messageContainer.style.marginLeft = "150px";
+  
+          const messageRow = document.createElement("div");
+          messageRow.style.display = "flex";
+          messageRow.style.alignItems = "flex-start";
+          messageRow.style.justifyContent = "flex-start";
+          messageRow.style.width = "100%";
+  
+          const avatar = document.createElement("img");
+          avatar.src = "logo512.png";
+          avatar.className = "avatar";
+          avatar.style.marginRight = "6px";
+          messageRow.appendChild(avatar);
+  
+          const bubble = document.createElement("div");
+          bubble.className = "message bot";
+          messageRow.appendChild(bubble);
+  
+          messageContainer.appendChild(messageRow);
+          chatBox.appendChild(messageContainer);
+          
+          // Handle streaming response
+          const reader = response.body.getReader();
+          let decoder = new TextDecoder();
+          let fullResponse = "";
+          
+          while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              
+              const chunk = decoder.decode(value);
+              const lines = chunk.split('\n');
+              
+              for (const line of lines) {
+                  if (line.startsWith('data:') && !line.includes('[DONE]')) {
+                      try {
+                          const data = JSON.parse(line.substring(5));
+                          const content = data.choices[0]?.delta?.content || "";
+                          fullResponse += content;
+                          
+                          // Update the bubble with formatted text
+                          bubble.innerHTML = formatResponse(fullResponse);
+                          chatBox.scrollTop = chatBox.scrollHeight;
+                      } catch (e) {
+                          console.error("Error parsing stream data:", e);
+                      }
+                  }
+              }
+          }
+          
+          // Save the complete message
+          currentChat.messages.push({ 
+              sender: "CareerBot", 
+              text: fullResponse 
+          });
+          
+          currentChat.timestamp = Date.now();
+  
+          if (currentChat.title === "New Chat") {
+              currentChat.title = getTitleFromMessage(userMessage);
+              chatHeader.textContent = currentChat.title;
+          }
+  
+          saveChats();
+          renderChatList();
+          
+      } catch (error) {
+          typingBubble?.remove();
+          const errorMessage = "⚠️ Sorry, I couldn't reach the server.";
+          appendMessage("CareerBot", errorMessage, false, true);
+          currentChat?.messages.push({ sender: "CareerBot", text: errorMessage });
+      } finally {
+          isBotTyping = false;
+          input.disabled = false;
+          input.focus();
+      }
+  }
+  
+  // Helper function to format streaming response
+  function formatResponse(text) {
+      return text
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/==(.*?)==/g, '<mark>$1</mark>')
+          .replace(/\n/g, '<br>');
   }
   
   // Add grievance button functionality
