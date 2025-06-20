@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const container = document.createElement("div");
       container.className = "message-container";
       container.style.alignItems = sender === "You" ? "flex-end" : "flex-start";
-      container.style.marginBottom = "15px";
+      container.style.marginBottom = "20px";
   
       if (sender === "CareerBot") {
           container.style.marginLeft = "150px";
@@ -128,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
       messageRow.style.alignItems = "flex-start";
       messageRow.style.justifyContent = sender === "You" ? "flex-end" : "flex-start";
       messageRow.style.width = "100%";
+      messageRow.style.maxWidth = "calc(100% - 40px)";
   
       const bubble = document.createElement("div");
       bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
@@ -245,7 +246,21 @@ document.addEventListener("DOMContentLoaded", () => {
       appendMessage("You", userMessage);
       currentChat.messages.push({ sender: "You", text: userMessage });
   
-      const typingBubble = appendMessage("CareerBot", "", true, false);
+      const loadingContainer = document.createElement("div");
+      loadingContainer.className = "message-container";
+      loadingContainer.style.marginLeft = "150px";
+      loadingContainer.innerHTML = `
+        <div class="message bot">
+          <div class="loading-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      `;
+      chatBox.appendChild(loadingContainer);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    
       isBotTyping = true;
       input.disabled = true;
   
@@ -258,6 +273,8 @@ document.addEventListener("DOMContentLoaded", () => {
                   history: currentChat.messages.slice(-5)
               })
           });
+
+          loadingContainer.remove();
   
           // Remove the typing indicator
           typingBubble?.remove();
