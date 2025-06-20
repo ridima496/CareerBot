@@ -256,131 +256,138 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function sendMessage(userMessage) {
-    if (isBotTyping || !input) return;
-
-    if (!currentChat) {
-      currentChat = createChat();
-      chats.unshift(currentChat);
-      if (chatHeader) chatHeader.textContent = currentChat.title;
-    }
-
-    if (introScreen) introScreen.style.display = "none";
-    hasUserMessaged = true;
-
-    appendMessage("You", userMessage);
-    currentChat.messages.push({ sender: "You", text: userMessage });
-
-    const loadingContainer = document.createElement("div");
-    loadingContainer.className = "message-container";
-    loadingContainer.style.marginLeft = "150px";
-    loadingContainer.innerHTML = `
-      <div class="message bot">
-        <div class="loading-dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </div>
-    `;
-    if (chatBox) chatBox.appendChild(loadingContainer);
-    chatBox.scrollTop = chatBox.scrollHeight;
+      if (isBotTyping || !input) return;
   
-    isBotTyping = true;
-    input.disabled = true;
-
-    try {
-      const response = await fetch(BACKEND_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userMessage,
-          history: currentChat.messages.slice(-5)
-        })
-      });
-
-      loadingContainer?.remove();
-          
-      const messageContainer = document.createElement("div");
-      messageContainer.className = "message-container";
-      messageContainer.style.alignItems = "flex-start";
-      messageContainer.style.marginBottom = "15px";
-      messageContainer.style.marginLeft = "150px";
-      messageContainer.style.maxWidth = "100%";
-
-      const messageRow = document.createElement("div");
-      messageRow.style.display = "flex";
-      messageRow.style.alignItems = "flex-start";
-      messageRow.style.justifyContent = "flex-start";
-      messageRow.style.width = "100%";
-      messageRow.style.maxWidth = "100%";
-
-      const avatar = document.createElement("img");
-      avatar.src = "logo512.png";
-      avatar.className = "avatar";
-      avatar.style.marginRight = "6px";
-      messageRow.appendChild(avatar);
-
-      const bubble = document.createElement("div");
-      bubble.className = "message bot";
-      bubble.style.maxWidth = "calc(100% - 50px)";
-      messageRow.appendChild(bubble);
-
-      messageContainer.appendChild(messageRow);
-      if (chatBox) chatBox.appendChild(messageContainer);
-      
-      const reader = response.body.getReader();
-      let decoder = new TextDecoder();
-      let fullResponse = "";
-      
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-        
-        for (const line of lines) {
-          if (line.startsWith('data:') && !line.includes('[DONE]')) {
-            try {
-              const data = JSON.parse(line.substring(5));
-              const content = data.choices[0]?.delta?.content || "";
-              fullResponse += content;
+      if (!currentChat) {
+          currentChat = createChat();
+          chats.unshift(currentChat);
+          if (chatHeader) chatHeader.textContent = currentChat.title;
+      }
+  
+      if (introScreen) introScreen.style.display = "none";
+      hasUserMessaged = true;
+  
+      appendMessage("You", userMessage);
+      currentChat.messages.push({ sender: "You", text: userMessage });
+  
+      // Create loading indicator
+      const loadingContainer = document.createElement("div");
+      loadingContainer.className = "message-container";
+      loadingContainer.style.marginLeft = "44px"; // Adjusted for avatar space
+      loadingContainer.innerHTML = `
+          <div class="message bot">
+              <div class="loading-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+              </div>
+          </div>
+      `;
+      if (chatBox) chatBox.appendChild(loadingContainer);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    
+      isBotTyping = true;
+      input.disabled = true;
+  
+      try {
+          const response = await fetch(BACKEND_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                  message: userMessage,
+                  history: currentChat.messages.slice(-5)
+              })
+          });
+  
+          // Remove loading indicator
+          loadingContainer?.remove();
+  
+          // Create message container for streaming
+          const messageContainer = document.createElement("div");
+          messageContainer.className = "message-container";
+          messageContainer.style.alignItems = "flex-start";
+          messageContainer.style.marginBottom = "15px";
+          messageContainer.style.marginLeft = "44px"; // Adjusted for avatar space
+  
+          const messageRow = document.createElement("div");
+          messageRow.style.display = "flex";
+          messageRow.style.alignItems = "flex-start";
+          messageRow.style.width = "100%";
+  
+          const avatar = document.createElement("img");
+          avatar.src = "logo512.png";
+          avatar.className = "avatar";
+          avatar.style.marginRight = "6px";
+          messageRow.appendChild(avatar);
+  
+          const bubble = document.createElement("div");
+          bubble.className = "message bot";
+          bubble.style.maxWidth = "calc(100% - 50px)";
+          messageRow.appendChild(bubble);
+  
+          messageContainer.appendChild(messageRow);
+          if (chatBox) chatBox.appendChild(messageContainer);
+  
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let fullResponse = "";
+          let buffer = "";
+  
+          while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
               
-              bubble.innerHTML = formatResponse(fullResponse);
-              if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-            } catch (e) {
-              console.error("Error parsing stream data:", e);
-            }
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split('\n');
+              buffer = lines.pop(); // Keep incomplete line in buffer
+              
+              for (const line of lines) {
+                  if (line.startsWith('data:') && line.trim() !== 'data: [DONE]') {
+                      try {
+                          const jsonStr = line.substring(5).trim();
+                          if (!jsonStr) continue;
+                          
+                          const data = JSON.parse(jsonStr);
+                          const content = data.choices[0]?.delta?.content || "";
+                          fullResponse += content;
+                          
+                          // Update the bubble with formatted text
+                          bubble.innerHTML = formatResponse(fullResponse);
+                          if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+                      } catch (e) {
+                          console.error("Error parsing stream data:", e);
+                      }
+                  }
+              }
           }
-        }
+          
+          // Save the complete message
+          currentChat.messages.push({ 
+              sender: "CareerBot", 
+              text: fullResponse 
+          });
+          
+          currentChat.timestamp = Date.now();
+  
+          if (currentChat.title === "New Chat") {
+              currentChat.title = getTitleFromMessage(userMessage);
+              if (chatHeader) chatHeader.textContent = currentChat.title;
+          }
+  
+          saveChats();
+          renderChatList();
+          
+      } catch (error) {
+          console.error("Error sending message:", error);
+          appendMessage("CareerBot", "⚠️ Sorry, I couldn't reach the server.", false, true);
+          currentChat?.messages.push({ sender: "CareerBot", text: "⚠️ Sorry, I couldn't reach the server." });
+      } finally {
+          isBotTyping = false;
+          if (input) {
+              input.disabled = false;
+              input.focus();
+          }
       }
-      
-      currentChat.messages.push({ 
-        sender: "CareerBot", 
-        text: fullResponse 
-      });
-      
-      currentChat.timestamp = Date.now();
-
-      if (currentChat.title === "New Chat") {
-        currentChat.title = getTitleFromMessage(userMessage);
-        if (chatHeader) chatHeader.textContent = currentChat.title;
-      }
-
-      saveChats();
-      renderChatList();
-      
-    } catch (error) {
-      console.error("Error sending message:", error);
-      appendMessage("CareerBot", "⚠️ Sorry, I couldn't reach the server.", false, true);
-      currentChat?.messages.push({ sender: "CareerBot", text: "⚠️ Sorry, I couldn't reach the server." });
-    } finally {
-      isBotTyping = false;
-      if (input) {
-        input.disabled = false;
-        input.focus();
-      }
-    }
   }
 
   function formatResponse(text) {
