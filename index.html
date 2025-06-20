@@ -333,12 +333,12 @@
     }
 
     .chat-actions {
-      display: none;
+      display: flex !important;
       gap: 8px;
     }
 
     .chat-item:hover .chat-actions {
-      display: flex;
+        display: flex !important;
     }
 
     .chat-actions button {
@@ -470,6 +470,11 @@
       width: 100%;
     }
 
+    .bot-message-container {
+      margin-left: 44px;
+      margin-bottom: 15px;
+    }
+
     .message-row {
       display: flex;
       align-items: flex-start;
@@ -537,7 +542,7 @@
     .avatar-space {
       width: 36px;
       height: 36px;
-      margin-right: 8px;
+      flex-shrink: 0;
       visibility: hidden;
     }
 
@@ -552,12 +557,12 @@
 
     /* Message Controls */
     .bot-controls {
-      display: none;
-      margin-top: 8px;
-      margin-left: 44px;
-      gap: 8px;
+        display: flex !important;
+        margin-top: 8px;
+        margin-left: 0;
+        gap: 8px;
     }
-
+    
     .message-container:hover .bot-controls {
       display: flex;
     }
