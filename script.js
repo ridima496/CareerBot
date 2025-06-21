@@ -123,7 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
       div.appendChild(actions);
 
       div.addEventListener("click", (e) => {
-        if (e.target.tagName === "BUTTON") return;
+        // Fix: Check if click is in actions container
+        if (e.target.closest('.chat-actions')) return;
         
         currentChat = chat;
         if (chatBox) chatBox.innerHTML = "";
@@ -163,6 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
     messageRow.style.alignItems = "flex-start";
     messageRow.style.justifyContent = sender === "You" ? "flex-end" : "flex-start";
     messageRow.style.maxWidth = "100%";
+    messageRow.style.gap = "10px"; // Consistent gap
 
     const bubble = document.createElement("div");
     bubble.className = `message ${sender === "You" ? "user" : "bot"}`;
@@ -177,6 +179,8 @@ document.addEventListener("DOMContentLoaded", () => {
       
       const avatarSpace = document.createElement("div");
       avatarSpace.className = "avatar-space";
+      avatarSpace.style.width = "36px";
+      avatarSpace.style.flexShrink = "0";
       messageRow.appendChild(avatarSpace);
     } else {
       let formattedMessage = message
@@ -197,7 +201,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const avatar = document.createElement("img");
         avatar.src = "logo512.png";
         avatar.className = "avatar";
+        avatar.style.flexShrink = "0";
         messageRow.appendChild(avatar);
+      } else if (sender === "CareerBot") {
+        // Add empty space for alignment
+        const avatarSpace = document.createElement("div");
+        avatarSpace.className = "avatar-space";
+        avatarSpace.style.width = "36px";
+        avatarSpace.style.flexShrink = "0";
+        messageRow.appendChild(avatarSpace);
       }
     }
 
@@ -207,6 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sender === "CareerBot" && !isTyping) {
       const controls = document.createElement("div");
       controls.className = "bot-controls";
+      controls.style.display = "flex"; // Force show for now
       
       let isSpeaking = false;
       let utterance = null;
@@ -272,8 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
       // Create loading indicator
       const loadingContainer = document.createElement("div");
-      loadingContainer.className = "message-container";
-      loadingContainer.style.marginLeft = "44px"; // Adjusted for avatar space
+      loadingContainer.className = "message-container bot-message-container";
       loadingContainer.innerHTML = `
           <div class="message bot">
               <div class="loading-dots">
@@ -304,20 +316,18 @@ document.addEventListener("DOMContentLoaded", () => {
   
           // Create message container for streaming
           const messageContainer = document.createElement("div");
-          messageContainer.className = "message-container";
-          messageContainer.style.alignItems = "flex-start";
-          messageContainer.style.marginBottom = "15px";
-          messageContainer.style.marginLeft = "44px"; // Adjusted for avatar space
+          messageContainer.className = "message-container bot-message-container";
   
           const messageRow = document.createElement("div");
+          messageRow.className = "message-row";
           messageRow.style.display = "flex";
           messageRow.style.alignItems = "flex-start";
-          messageRow.style.width = "100%";
+          messageRow.style.gap = "10px";
   
           const avatar = document.createElement("img");
           avatar.src = "logo512.png";
           avatar.className = "avatar";
-          avatar.style.marginRight = "6px";
+          avatar.style.flexShrink = "0";
           messageRow.appendChild(avatar);
   
           const bubble = document.createElement("div");
@@ -338,25 +348,22 @@ document.addEventListener("DOMContentLoaded", () => {
               if (done) break;
               
               buffer += decoder.decode(value, { stream: true });
-              const lines = buffer.split('\n');
-              buffer = lines.pop(); // Keep incomplete line in buffer
+              const events = buffer.split("\n\n");
+              buffer = events.pop() || "";
               
-              for (const line of lines) {
-                  if (line.startsWith('data:') && line.trim() !== 'data: [DONE]') {
-                      try {
-                          const jsonStr = line.substring(5).trim();
-                          if (!jsonStr) continue;
-                          
-                          const data = JSON.parse(jsonStr);
-                          const content = data.choices[0]?.delta?.content || "";
-                          fullResponse += content;
-                          
-                          // Update the bubble with formatted text
-                          bubble.innerHTML = formatResponse(fullResponse);
-                          if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-                      } catch (e) {
-                          console.error("Error parsing stream data:", e);
-                      }
+              for (const event of events) {
+                  if (!event.includes("data:") || event.includes("[DONE]")) continue;
+                  
+                  try {
+                      const jsonStr = event.replace("data: ", "");
+                      const data = JSON.parse(jsonStr);
+                      const content = data.choices[0]?.delta?.content || "";
+                      fullResponse += content;
+                      
+                      bubble.innerHTML = formatResponse(fullResponse);
+                      if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+                  } catch (e) {
+                      console.error("Error parsing stream data:", e);
                   }
               }
           }
@@ -425,12 +432,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startNewChat() {
-    currentChat = null;
+    if (currentChat?.messages?.length) {
+        currentChat.timestamp = Date.now();
+        saveChats();
+    }
+    
+    currentChat = createChat();
+    chats.unshift(currentChat);
+    
     if (chatBox) chatBox.innerHTML = "";
     if (introScreen) introScreen.style.display = "flex";
     hasUserMessaged = false;
+    
     if (chatHeader) chatHeader.textContent = "New Chat";
     renderChatList();
+    
+    // Set new chat as active
+    const firstChatItem = document.querySelector('.chat-item');
+    if (firstChatItem) {
+        firstChatItem.classList.add('active');
+    }
   }
 
   if (exportBtn) {
